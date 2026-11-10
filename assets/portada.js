@@ -53,6 +53,7 @@ const S = {
     ],
     shortSong: ' Eso sí, canta una corta.',
     usual: (n, p) => 'Nivel habitual de ' + n + ' esta semana: ' + p + ' % (mediana desde 1988).',
+    byBasin: 'Cuencas, de más llena a más vacía', legend: 'Cada cuadrado es un embalse: tamaño, su capacidad; azul, el agua que tiene.',
     share: 'Compartir mi vaso', copied: 'Enlace copiado',
     shareText: (n, p) => 'El agua de ' + n + ' está al ' + p + ' %.'
   },
@@ -101,6 +102,7 @@ const S = {
     ],
     shortSong: ' Make it a short song, though.',
     usual: (n, p) => 'Usual level of ' + n + ' this week: ' + p + ' % (median since 1988).',
+    byBasin: 'Basins, fullest to emptiest', legend: 'Each square is a reservoir: size is its capacity, blue is the water it holds.',
     share: 'Share my glass', copied: 'Link copied',
     shareText: (n, p) => 'The water of ' + n + ' is at ' + p + ' %.'
   }
@@ -120,7 +122,7 @@ function brick(p, w, h) {
 
 const VIEWS = ['home', 'muro', 'mapa', 'tu-vaso', 'esconde', 'premios'];
 let A, L, view = 'home', NOTES = { fuera_de_concurso: [], contexto: [] };
-let home, prem, nav, plus;
+let home, prem, nav, plus, side;
 
 addEventListener('agua:ready', init, { once: true });
 if (window.AGUA) init();
@@ -142,6 +144,7 @@ function init() {
   prem = document.createElement('section'); prem.className = 'basin prem'; prem.id = 'premios'; prem.dataset.view = 'premios';
   main.querySelector('footer').before(prem);
   nav = $('#nav');
+  side = document.createElement('aside'); side.id = 'mside'; $('#mapa .mwrap').appendChild(side);
   plus = document.createElement('div'); plus.id = 'cplus'; $('#card').appendChild(plus);
 
   addEventListener('agua:year', renderAll);
@@ -174,7 +177,7 @@ function renderAll() {
   nav.setAttribute('aria-label', L.navLabel);
   nav.innerHTML = VIEWS.map(v => '<a href="#/' + (v === 'home' ? '' : v) + '"' + (v === view ? ' aria-current="page"' : '') + '>' + L.nav[v] + '</a>').join('');
   const prizes = awards();
-  renderHome(prizes); renderPrizes(prizes); renderCard();
+  renderHome(prizes); renderPrizes(prizes); renderSide(); renderCard();
 }
 
 /* ---------- home ---------- */
@@ -195,6 +198,15 @@ function renderHome(prizes) {
   if (t) h += '<a class="teaser" href="#/premios"><span class="tk">' + L.prizeOne + '</span><span class="tb">' + brick(t.p, 46, 60) +
     '<span><b>' + L.aw[t.id][0] + ': ' + esc(t.k.n) + '</b><i>' + t.line + '</i><u>' + L.prizeAll + '</u></span></span></a>';
   home.innerHTML = h;
+}
+
+/* ---------- beside the map ---------- */
+/* The map is as tall as the screen allows, which leaves room beside it on a wide screen.
+   That room shows what the map cannot: the sixteen basins ranked by how full they are. */
+function renderSide() {
+  const yi = A.yi, rows = A.D.basins.filter(b => b.p[yi] != null).sort((a, b) => b.p[yi] - a.p[yi]);
+  side.innerHTML = '<span class="tk">' + L.byBasin.toUpperCase() + ' · ' + (A.D.first + yi) + '</span><ol>' + rows.map(b =>
+    '<li><span>' + esc(b.n) + '</span><i><i style="width:' + b.p[yi] + '%"></i></i><b>' + b.p[yi] + ' %</b></li>').join('') + '</ol><p>' + L.legend + '</p>';
 }
 
 /* ---------- prizes ---------- */

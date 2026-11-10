@@ -54,3 +54,14 @@ body:not([data-view="home"]) main{padding-top:clamp(20px,4vh,40px)}
 .vtxt p.ctx{color:var(--rock)}
 .share{margin-top:14px;background:var(--ink);color:var(--dark);border:2px solid var(--ink);font-weight:800;font-size:14px;padding:12px 18px;min-height:44px}
 .share:hover{background:transparent;color:var(--ink)}
+
+.mwrap{display:flex;flex-wrap:wrap;gap:24px 40px;align-items:flex-start}
+.mwrap canvas{flex:none}
+#mside{flex:1 1 280px;max-width:460px;min-width:0}
+#mside ol{list-style:none;margin:8px 0 0;padding:0;border-top:2px solid var(--ink)}
+#mside li{display:grid;grid-template-columns:minmax(0,1fr) 90px 46px;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-weight:700;font-size:14px}
+#mside li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#mside li>i{display:block;height:12px;background:var(--rock)}
+#mside li>i>i{display:block;height:100%;margin-left:auto;background:var(--water)}
+#mside li b{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--water);text-align:right;font-variant-numeric:tabular-nums}
+#mside p{margin:12px 0 0;font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--mute)}
