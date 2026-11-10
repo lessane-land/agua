@@ -1,21 +1,22 @@
 /* Agua: Spain's reservoirs as a wall of water. No build step, no dependencies.
    Data: data/agua.json, rebuilt weekly by tools/build_data.py from MITECO's bulletin. */
 function startLang(){ try{const s=localStorage.getItem('agua-lang'); if(s==='es'||s==='en')return s}catch(e){} return (navigator.language||'es').toLowerCase().startsWith('es')?'es':'en' }
-fetch('data/agua.json').then(r=>{ if(!r.ok)throw new Error(r.status); return r.json() }).then(start).catch(e=>{ console.error(e);
+const getJ=u=>fetch(u).then(r=>{ if(!r.ok)throw new Error(u+' '+r.status); return r.json() });
+Promise.all([getJ('data/agua.json'),getJ('data/geo.json').catch(()=>({r:{},es:[],pt:[]}))]).then(a=>start(a[0],a[1])).catch(e=>{ console.error(e);
   document.getElementById('main').innerHTML='<p class="msg">No se han podido cargar los datos. Recarga la página. / The data could not be loaded. Reload the page.</p>' });
-function start(D){
+function start(D,G){
 const fmtDate=iso=>{const d=new Date(iso+'T12:00:00'); return d.toLocaleDateString(lang==='es'?'es-ES':'en-GB',{day:'numeric',month:'short',year:'numeric'})};
 const Y0=D.first, N=D.nat.length;
 const T={es:{h:['España','se llena'],strip:'ESTA SEMANA EN OTROS AÑOS',today:'último boletín',play:'Reproducir',pause:'Pausar',res:'embalses',close:'Cerrar',year:'Año',
   lede:'<b>Cada ladrillo es un embalse.</b> El tamaño es su capacidad, el agua es lo que tiene y la roca es lo que falta. Arriba, toda España en una pantalla; debajo, cuenca a cuenca, de norte a sur. Toca uno. Mueve los años.',
   foot:'Origen de los datos: MITECO, Boletín Hidrológico semanal. Datos provisionales, sin validar. Embalses peninsulares de más de 5 hm3: no incluye las islas, Ceuta ni Melilla. El área de cada ladrillo es su capacidad de hoy, a la misma escala en toda España. Cada año muestra el boletín más cercano a la fecha de hoy. Un hueco es un embalse que aún no existía.',
   credits:'Créditos y fuentes',kofi:'Invítame a un café',code:'Código',nodata:'sin boletín',
-  none:'aún no existía',cap:'capacidad',now:'último dato',best:'más lleno',worst:'más vacío',ring:'esta semana, cada año',all:'Toda España',hid:'Lo que el agua esconde',hidn:'lugares con testigos',hidlede:'Bajo algunos embalses hay iglesias, pueblos y piedras de hace miles de años. Aquí solo entra lo que alguien vio y fechó: cada raya es un avistamiento con su fuente, cruzado con el nivel del embalse ese día. Lo que nadie ha documentado no se inventa.',v_out:'Fuera del agua',v_part:'Asoma',v_under:'Bajo el agua',v_unk:'Sin testigos a este nivel',w_out:'Visto fuera con el embalse igual o más lleno',w_part:'Como mínimo',w_under:'Visto cubierto con el embalse igual o más vacío',w_unk:'Nadie lo ha documentado con el embalse a este nivel. Las rayas marcan los niveles a los que sí hay testigos.',s_fuera:'fuera',s_parcial:'asoma',s_cubierto:'cubierto',seen:'Avistamientos',src:'Fuente',said:'la fuente dice',in:'Embalse de',hides:'Esconde',sketch:'Dibujo esquemático. La figura se coloca entre los avistamientos, no según un plano.',vt:'Tu vaso',vn:'ciudades con fuente',vph:'Escribe tu ciudad',vlab:'Tu ciudad',vlede:'Escribe tu ciudad y te digo cómo está el agua que bebes. No existe una lista pública que diga de qué embalse bebe cada municipio, así que voy ciudad a ciudad, solo con lo que publica quien gestiona el agua.',vbig:'Tu agua está al',vup:'puntos más que hace un año',vdown:'puntos menos que hace un año',vsame:'igual que hace un año',vfrom:'Viene de',vby:'La gestiona',vmiss:'No está en los datos del ministerio y no se cuenta',valso:'También vale para',vnone:'Aún no tengo esa ciudad. Solo añado las que tienen fuente del operador.',vapprox:'Años anteriores: aproximado con la capacidad de hoy.'},
+  none:'aún no existía',cap:'capacidad',now:'último dato',best:'más lleno',worst:'más vacío',ring:'esta semana, cada año',all:'Toda España',hid:'Lo que el agua esconde',hidn:'lugares con testigos',hidlede:'Bajo algunos embalses hay iglesias, pueblos y piedras de hace miles de años. Aquí solo entra lo que alguien vio y fechó: cada raya es un avistamiento con su fuente, cruzado con el nivel del embalse ese día. Lo que nadie ha documentado no se inventa.',v_out:'Fuera del agua',v_part:'Asoma',v_under:'Bajo el agua',v_unk:'Sin testigos a este nivel',w_out:'Visto fuera con el embalse igual o más lleno',w_part:'Como mínimo',w_under:'Visto cubierto con el embalse igual o más vacío',w_unk:'Nadie lo ha documentado con el embalse a este nivel. Las rayas marcan los niveles a los que sí hay testigos.',s_fuera:'fuera',s_parcial:'asoma',s_cubierto:'cubierto',seen:'Avistamientos',src:'Fuente',said:'la fuente dice',in:'Embalse de',hides:'Esconde',sketch:'Dibujo esquemático. La figura se coloca entre los avistamientos, no según un plano.',vt:'Tu vaso',vn:'ciudades con fuente',vph:'Escribe tu ciudad o tu pueblo',vlab:'Tu municipio',vlede:'Escribe cualquier municipio de España. Si tengo la fuente de quien gestiona su agua, te digo cómo están sus embalses. Si no, te enseño los cinco que tiene más cerca y lo digo claro: no existe una lista pública que diga de qué embalse bebe cada pueblo.',vbig:'Tu agua está al',vup:'puntos más que hace un año',vdown:'puntos menos que hace un año',vsame:'igual que hace un año',vfrom:'Viene de',vby:'La gestiona',vmiss:'No está en los datos del ministerio y no se cuenta',valso:'También vale para',vnone:'Buscando…',vnone2:'No encuentro ese municipio.',mp:'Dónde están',mpn:'embalses localizados de',mplede:'Cada embalse en su sitio, con el agua de esa semana. El tamaño del cuadrado es su capacidad. Toca uno. Los que no tienen coordenadas fiables no se dibujan.',onmap:'ver en el mapa',noloc:'sin localizar',vnear1:'Cerca de',vnear2:'al',km:'km',vhon1:'No sé de qué embalses bebe',vhon2:'no hay una fuente abierta que lo diga. Estos son los cinco embalses más cercanos, que no tienen por qué ser los que lo abastecen.',visl:'Sin datos aquí',visl2:'Las islas, Ceuta y Melilla no están en el boletín del ministerio.',vnearl:'Los más cercanos',vapprox:'Años anteriores: aproximado con la capacidad de hoy.'},
  en:{h:['Spain','fills up'],strip:'THIS WEEK IN OTHER YEARS',today:'latest bulletin',play:'Play',pause:'Pause',res:'reservoirs',close:'Close',year:'Year',
   lede:'<b>Every brick is a reservoir.</b> Size is its capacity, water is what it holds and rock is what is missing. Above, all of Spain on one screen; below, basin by basin, north to south. Tap one. Move the years.',
   foot:'Data source: MITECO, weekly Boletín Hidrológico. Provisional, unvalidated data. Mainland reservoirs over 5 hm3: the islands, Ceuta and Melilla are not included. Each brick\'s area is its capacity today, at one scale for all of Spain. Each year shows the bulletin closest to today\'s date. A gap is a reservoir that did not exist yet.',
   credits:'Credits and sources',kofi:'Buy me a coffee',code:'Code',nodata:'no bulletin',
-  none:'did not exist yet',cap:'capacity',now:'latest',best:'fullest',worst:'emptiest',ring:'this week, every year',all:'All of Spain',hid:'What the water hides',hidn:'places with witnesses',hidlede:'Under some reservoirs lie churches, villages and stones thousands of years old. Only what someone saw and dated gets in: each line is a sighting with its source, matched to the reservoir level that day. What nobody has documented is not made up.',v_out:'Out of the water',v_part:'Showing',v_under:'Under water',v_unk:'No witnesses at this level',w_out:'Seen out with the reservoir as full or fuller',w_part:'At the very least',w_under:'Seen covered with the reservoir as empty or emptier',w_unk:'Nobody has documented it with the reservoir at this level. The lines mark the levels that do have witnesses.',s_fuera:'out',s_parcial:'showing',s_cubierto:'covered',seen:'Sightings',src:'Source',said:'the source says',in:'Reservoir:',hides:'Hides',sketch:'Schematic drawing. The figure is placed between the sightings, not from a survey.',vt:'Your glass',vn:'cities with a source',vph:'Type your city',vlab:'Your city',vlede:'Type your city and I will tell you how the water you drink is doing. There is no public list of which reservoir each town drinks from, so I go city by city, using only what the water operator publishes.',vbig:'Your water is at',vup:'points more than a year ago',vdown:'points fewer than a year ago',vsame:'the same as a year ago',vfrom:'It comes from',vby:'Managed by',vmiss:'Not in the ministry data and not counted',valso:'Also valid for',vnone:'I do not have that city yet. I only add those with an operator source.',vapprox:'Earlier years: approximated with today\'s capacity.'}};
+  none:'did not exist yet',cap:'capacity',now:'latest',best:'fullest',worst:'emptiest',ring:'this week, every year',all:'All of Spain',hid:'What the water hides',hidn:'places with witnesses',hidlede:'Under some reservoirs lie churches, villages and stones thousands of years old. Only what someone saw and dated gets in: each line is a sighting with its source, matched to the reservoir level that day. What nobody has documented is not made up.',v_out:'Out of the water',v_part:'Showing',v_under:'Under water',v_unk:'No witnesses at this level',w_out:'Seen out with the reservoir as full or fuller',w_part:'At the very least',w_under:'Seen covered with the reservoir as empty or emptier',w_unk:'Nobody has documented it with the reservoir at this level. The lines mark the levels that do have witnesses.',s_fuera:'out',s_parcial:'showing',s_cubierto:'covered',seen:'Sightings',src:'Source',said:'the source says',in:'Reservoir:',hides:'Hides',sketch:'Schematic drawing. The figure is placed between the sightings, not from a survey.',vt:'Your glass',vn:'cities with a source',vph:'Type your city or town',vlab:'Your town',vlede:'Type any town in Spain. If I have its water operator\'s source, I tell you how its reservoirs are doing. If not, I show you the five nearest ones and say so plainly: there is no public list of which reservoir each town drinks from.',vbig:'Your water is at',vup:'points more than a year ago',vdown:'points fewer than a year ago',vsame:'the same as a year ago',vfrom:'It comes from',vby:'Managed by',vmiss:'Not in the ministry data and not counted',valso:'Also valid for',vnone:'Searching…',vnone2:'I cannot find that town.',mp:'Where they are',mpn:'reservoirs located out of',mplede:'Every reservoir in its place, with that week\'s water. The size of the square is its capacity. Tap one. Those without reliable coordinates are not drawn.',onmap:'see on the map',noloc:'not located',vnear1:'Near',vnear2:'at',km:'km',vhon1:'I do not know which reservoirs supply',vhon2:'no open source says so. These are the five nearest reservoirs, which are not necessarily the ones that supply it.',visl:'No data here',visl2:'The islands, Ceuta and Melilla are not in the ministry bulletin.',vnearl:'The nearest',vapprox:'Earlier years: approximated with today\'s capacity.'}};
 let lang=startLang(), yi=N-1, playing=null, hover=null, picked=null, tChange=0;
 const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=s=>document.querySelector(s);
@@ -45,12 +46,58 @@ function mk(b,src,all){
   basins.push(o);
   cv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch')return; hover=hit(o,e); cv.style.cursor=hover?'pointer':'default'; showCard()});
   cv.addEventListener('pointerleave',()=>{hover=null; showCard()});
-  cv.addEventListener('click',e=>{const k=hit(o,e); picked=(k&&k!==picked)?k:null; showCard()});
+  cv.addEventListener('click',e=>{const k=hit(o,e); picked=(k&&!(picked&&picked.n===k.n))?k:null; showCard()});
   return o;
 }
 const ALL=mk({n:'',p:D.nat.map(v=>Math.round(v))},D.basins.flatMap(b=>b.r.map(r=>[r[0],r[1],r[2],r[3],b.n])),true); idx=0;
 
 /* ---------- layer 2: what the water hides ---------- */
+/* ---------- the map ---------- */
+const LL=G.r||{};
+const BX={lo0:-9.7,lo1:3.6,la0:35.8,la1:44.0}, KX=Math.cos(40*Math.PI/180), RATIO=(BX.la1-BX.la0)/((BX.lo1-BX.lo0)*KX);
+const proj=(W,H,lat,lon)=>[(lon-BX.lo0)/(BX.lo1-BX.lo0)*W,(BX.la1-lat)/(BX.la1-BX.la0)*H];
+const msec=document.createElement('section'); msec.className='basin map'; msec.id='mapa';
+msec.innerHTML='<div class="bh"><h2></h2><div class="bm"><b></b><span></span></div></div><p class="lede tl2"></p><div class="mwrap"><canvas></canvas></div>';
+main.appendChild(msec);
+const mcv=msec.querySelector('canvas');
+const MO={cv:mcv,g:mcv.getContext('2d'),sec:msec,rev:true,vis:true,W:0,h:0,pats:null,
+  bricks:ALL.bricks.filter(k=>LL[k.n]).sort((a,b)=>b.c-a.c).map((k,i)=>({n:k.n,c:k.c,p:k.p,v:k.v,basin:k.basin,ll:LL[k.n],i,tone:k.tone,cur:null,vel:0,x:0,y:0,w:0,h:0}))};
+mcv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch')return; hover=hit(MO,e); mcv.style.cursor=hover?'pointer':'default'; showCard()});
+mcv.addEventListener('pointerleave',()=>{hover=null; showCard()});
+mcv.addEventListener('click',e=>{const k=hit(MO,e); picked=(k&&k!==picked)?k:null; showCard()});
+function sizeMap(){ const full=mcv.parentElement.clientWidth; if(!full)return; const W=Math.max(280,Math.min(full,(innerHeight-190)/RATIO)), H=Math.round(W*RATIO);
+  MO.W=W; MO.h=H; mcv.style.width=W+'px'; mcv.style.height=H+'px'; mcv.width=Math.round(W*dpr); mcv.height=Math.round(H*dpr); MO.g.setTransform(dpr,0,0,dpr,0,0); MO.pats=ROCKS.map(c=>MO.g.createPattern(c,'repeat'));
+  MO.bricks.forEach(k=>{ const s=Math.max(W<500?4:5,Math.sqrt(k.c)*W/1150), q=proj(W,H,k.ll[0],k.ll[1]); k.w=s; k.h=s; k.x=q[0]-s/2; k.y=q[1]-s/2 }) }
+function ring(g,W,H,r){ g.beginPath(); r.forEach((q,i)=>{ const a=proj(W,H,q[1],q[0]); i?g.lineTo(a[0],a[1]):g.moveTo(a[0],a[1]) }); g.closePath() }
+MO.bg=g=>{ (G.pt||[]).forEach(r=>{ ring(g,MO.W,MO.h,r); g.fillStyle='#131A1B'; g.fill() });
+  (G.es||[]).forEach(r=>{ ring(g,MO.W,MO.h,r); g.fillStyle='#1B2526'; g.fill(); g.strokeStyle='#34403F'; g.lineWidth=2; g.stroke() }) };
+MO.fg=g=>{ const names=new Set(VO.bricks.map(k=>k.n)); g.strokeStyle='#EEF1EC'; g.lineWidth=2;
+  MO.bricks.forEach(k=>{ if(names.has(k.n))g.strokeRect(k.x-2,k.y-2,k.w+4,k.h+4) });
+  if(vsel&&vsel.town){ const q=proj(MO.W,MO.h,vsel.town[1],vsel.town[2]); g.fillStyle='#EEF1EC'; g.beginPath(); g.arc(q[0],q[1],5,0,7); g.fill(); g.fillStyle='#0B1112'; g.beginPath(); g.arc(q[0],q[1],2,0,7); g.fill();
+    g.font="800 12px Archivo, Arial, sans-serif"; const s=vsel.town[0], tw=g.measureText(s).width, tx=Math.min(MO.W-tw-8,q[0]+9); g.fillStyle='#0B1112'; g.fillRect(tx-4,q[1]-9,tw+8,18); g.fillStyle='#EEF1EC'; g.fillText(s,tx,q[1]+4) } };
+const LW=104, LH=Math.round(104*RATIO);
+const ESPATH=(G.es||[]).map(r=>r.map((q,i)=>{const a=proj(LW,LH,q[1],q[0]); return (i?'L':'M')+a[0].toFixed(1)+' '+a[1].toFixed(1)}).join('')+'Z').join('');
+function locSvg(k){ const ll=LL[k.n]; if(!ll)return '<div class="nl">'+T[lang].noloc+'</div>'; const a=proj(LW,LH,ll[0],ll[1]);
+  return '<svg width="'+LW+'" height="'+LH+'" viewBox="0 0 '+LW+' '+LH+'" role="img" aria-label="'+k.n+'"><path d="'+ESPATH+'" fill="#1B2526" stroke="#A3AFAC" stroke-width="1"/><rect x="'+(a[0]-4).toFixed(1)+'" y="'+(a[1]-4).toFixed(1)+'" width="8" height="8" fill="#3F93A8" stroke="#EEF1EC" stroke-width="2"/></svg>' }
+function renderMap(){ const L=T[lang]; msec.querySelector('h2').textContent=L.mp; msec.querySelector('.bm b').textContent=MO.bricks.length; msec.querySelector('.bm span').textContent=L.mpn+' '+ALL.bricks.length; msec.querySelector('.tl2').textContent=L.mplede }
+/* towns: every municipality, loaded only when someone types */
+let TOWNS=null, tloading=false;
+function loadTowns(){ if(tloading)return; tloading=true; fetch('data/municipios.json').then(r=>r.json()).then(a=>{ TOWNS=a.map(t=>[t[0],t[1],t[2],plain(t[0])]); chips($('#city').value) }).catch(()=>{tloading=false}) }
+const kmBetween=(a,b,c,d)=>{ const R=6371,p=Math.PI/180,x=(d-b)*p*Math.cos((a+c)/2*p),y=(c-a)*p; return R*Math.sqrt(x*x+y*y) };
+function pickTown(t){ const isl=t[1]<35.95||(t[2]>1.1&&t[1]<40.2); let near=[];
+  if(!isl)near=MO.bricks.map(k=>[kmBetween(t[1],t[2],k.ll[0],k.ll[1]),k.n]).sort((a,b)=>a[0]-b[0]).slice(0,5);
+  vsel={id:null,town:t,n:{es:t[0],en:t[0]},also:[],op:null,r:near.map(x=>x[1]),miss:[],src:[],km:Object.fromEntries(near.map(x=>[x[1],x[0]]))};
+  $('#city').value=''; vBricks(vsel); renderVas() }
+function renderTown(v){ const L=T[lang], p=v.r.length?vPct(v,yi):null, q=v.r.length&&yi>0?vPct(v,yi-1):null;
+  let h='<div class="vk">'+v.town[0]+' · '+(D.dates[yi]?fmtDate(D.dates[yi]):(Y0+yi))+'</div>';
+  if(!v.r.length){ h+='<div class="vd v-unk">'+L.visl+'</div><p>'+L.visl2+'</p>' }
+  else { h+='<div class="vd v-part">'+L.vnear1+' '+v.town[0]+', '+L.vnear2+' '+(p==null?'·':num(p,0))+' %</div>';
+    if(p!=null&&q!=null){ const d=Math.round(p)-Math.round(q); h+='<p class="why '+(d<0?'down':'up')+'">'+(d===0?L.vsame:Math.abs(d)+' '+(d>0?L.vup:L.vdown))+'.</p>' }
+    h+='<p class="hon">'+L.vhon1+' '+v.town[0]+': '+L.vhon2+'</p>';
+    h+='<p><b>'+L.vnearl+':</b> '+[...VO.bricks].sort((a,b)=>v.km[a.n]-v.km[b.n]).map(k=>k.n+' ('+Math.round(v.km[k.n])+' '+L.km+', '+(k.p[yi]==null?'·':k.p[yi]+' %')+')').join(', ')+'. <a href="#mapa">'+L.onmap+'</a></p>';
+    if(yi!==N-1)h+='<p>'+L.vapprox+'</p>' }
+  vsec.querySelector('.vtxt').innerHTML=h }
+
 /* ---------- layer 3: your glass ---------- */
 const VAS=(D.v||[]); let vsel=null;
 try{ const s=localStorage.getItem('agua-city'); vsel=VAS.find(v=>v.id===s)||null }catch(e){}
@@ -65,23 +112,25 @@ const vcv=vsec.querySelector('canvas');
 const VO={cv:vcv,g:vcv.getContext('2d'),sec:vsec,bricks:[],vis:true,W:0,h:0,pats:null};
 vcv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch')return; hover=hit(VO,e); vcv.style.cursor=hover?'pointer':'default'; showCard()});
 vcv.addEventListener('pointerleave',()=>{hover=null; showCard()});
-vcv.addEventListener('click',e=>{const k=hit(VO,e); picked=(k&&k!==picked)?k:null; showCard()});
+vcv.addEventListener('click',e=>{const k=hit(VO,e); picked=(k&&!(picked&&picked.n===k.n))?k:null; showCard()});
 function vPct(v,i){ const ks=v.r.map(n=>ALL.bricks.find(k=>k.n===n)).filter(Boolean); let c=0,w=0;
   ks.forEach(k=>{ if(i===N-1){c+=k.c;w+=k.v} else if(k.p[i]!=null){c+=k.c;w+=k.c*k.p[i]/100} }); return c?100*w/c:null }
-function vBricks(v,later){ let i=0; VO.bricks=v.r.map(n=>ALL.bricks.find(k=>k.n===n)).filter(Boolean).sort((a,b)=>b.c-a.c).map(k=>({n:k.n,c:k.c,p:k.p,v:k.v,basin:k.basin,i:i++,tone:k.tone,cur:null,vel:0,x:0,y:0,w:0,h:0})); if(!later)sizeVas() }
+function vBricks(v,later){ let i=0; VO.bricks=v.r.map(n=>ALL.bricks.find(k=>k.n===n)).filter(Boolean).sort((a,b)=>b.c-a.c).map(k=>({n:k.n,c:k.c,p:k.p,v:k.v,basin:k.basin,i:i++,tone:k.tone,cur:null,vel:0,x:0,y:0,w:0,h:0})); vcv.style.display=VO.bricks.length?'':'none'; if(!later)sizeVas() }
 function sizeVas(){ const W=vcv.parentElement.clientWidth; if(!W||!VO.bricks.length)return; const Hh=W<520?200:260;
   const tot=VO.bricks.reduce((a,k)=>a+k.c,0), f=W*Hh/tot; squarify(VO.bricks,VO.bricks.map(k=>k.c*f),{x:0,y:0,w:W,h:Hh});
   VO.W=W; VO.h=Hh; vcv.style.width=W+'px'; vcv.style.height=Hh+'px'; vcv.width=Math.round(W*dpr); vcv.height=Math.round(Hh*dpr); VO.g.setTransform(dpr,0,0,dpr,0,0); VO.pats=ROCKS.map(c=>VO.g.createPattern(c,'repeat')) }
 function chips(q){ const box=vsec.querySelector('.chips'); box.innerHTML=''; const all=[]; VAS.forEach(v=>{ all.push([v.n[lang],v]); v.also.forEach(a=>all.push([a,v])) });
   const m=all.filter(([n])=>!q||plain(n).includes(plain(q)));
   m.forEach(([n,v])=>{ const b=document.createElement('button'); b.type='button'; b.textContent=n; b.setAttribute('aria-pressed',v===vsel&&n===v.n[lang]); b.addEventListener('click',()=>pickCity(v)); box.appendChild(b) });
-  if(q&&!m.length){ const p=document.createElement('p'); p.className='vno'; p.textContent=T[lang].vnone; box.appendChild(p) }
-  return m }
+  let tw=[]; if(q&&plain(q).length>=2){ loadTowns(); if(TOWNS){ const pq=plain(q), have=new Set(m.map(([n])=>plain(n))); tw=TOWNS.filter(t=>t[3].includes(pq)&&!have.has(t[3])).sort((a,b)=>(b[3].startsWith(pq)?1:0)-(a[3].startsWith(pq)?1:0)).slice(0,8) } }
+  tw.forEach(t=>{ const b=document.createElement('button'); b.type='button'; b.className='tw'; b.textContent=t[0]; b.addEventListener('click',()=>pickTown(t)); box.appendChild(b) });
+  if(q&&!m.length&&!tw.length){ const p=document.createElement('p'); p.className='vno'; p.textContent=TOWNS?T[lang].vnone2:T[lang].vnone; box.appendChild(p) }
+  return m.concat(tw.map(t=>[t[0],null,t])) }
 function pickCity(v){ vsel=v; try{localStorage.setItem('agua-city',v.id)}catch(e){} $('#city').value=''; vBricks(v); renderVas() }
 function renderVas(){ if(!VAS.length)return; const L=T[lang];
   vsec.querySelector('h2').textContent=L.vt; vsec.querySelector('.bm span').textContent=L.vn; vsec.querySelector('.tl2').textContent=L.vlede;
   vsec.querySelector('label').textContent=L.vlab; $('#city').placeholder=L.vph; chips($('#city').value);
-  const v=vsel; if(!v)return; const p=vPct(v,yi), q=yi>0?vPct(v,yi-1):null;
+  const v=vsel; if(!v)return; if(v.town){ renderTown(v); return } const p=vPct(v,yi), q=yi>0?vPct(v,yi-1):null;
   let h='<div class="vk">'+v.n[lang]+' · '+(D.dates[yi]?fmtDate(D.dates[yi]):(Y0+yi))+'</div>';
   h+='<div class="vd v-under">'+L.vbig+' '+(p==null?'·':num(p,0))+' %</div>';
   if(p!=null&&q!=null){ const d=Math.round(p)-Math.round(q); h+='<p class="why '+(d<0?'down':'up')+'">'+(d===0?L.vsame:Math.abs(d)+' '+(d>0?L.vup:L.vdown))+'.</p>' }
@@ -93,7 +142,7 @@ function renderVas(){ if(!VAS.length)return; const L=T[lang];
   h+='<p class="srcs">'+L.src+': '+v.src.map(x=>'<a href="'+x.u+'" rel="noopener">'+x.t+'</a>').join(', ')+'</p>';
   vsec.querySelector('.vtxt').innerHTML=h }
 $('#city').addEventListener('input',e=>chips(e.target.value));
-vsec.querySelector('form').addEventListener('submit',e=>{ e.preventDefault(); const m=chips($('#city').value); if($('#city').value&&m.length)pickCity(m[0][1]) });
+vsec.querySelector('form').addEventListener('submit',e=>{ e.preventDefault(); const m=chips($('#city').value); if($('#city').value&&m.length){ m[0][1]?pickCity(m[0][1]):pickTown(m[0][2]) } });
 if(vsel)vBricks(vsel,true);
 
 const TES=(D.t||[]).map(t=>({t,k:ALL.bricks.find(k=>k.n===t.r),cur:null,vel:0})).filter(o=>o.k);
@@ -181,12 +230,12 @@ function layout(){
       squarify(o.bricks,areas,{x:0,y:0,w:bw,h:bh}); }
     o.h=Math.ceil(bh); o.W=Math.ceil(bw); o.cv.style.width=o.W+'px'; o.cv.style.height=o.h+'px'; o.cv.width=Math.round(o.W*dpr); o.cv.height=Math.round(o.h*dpr);
     o.g.setTransform(dpr,0,0,dpr,0,0); o.pats=ROCKS.map(c=>o.g.createPattern(c,'repeat')); });
-  sizeTes(); sizeVas();
+  sizeTes(); sizeVas(); sizeMap();
 }
-function hit(o,e){const r=o.cv.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top; return o.bricks.find(k=>x>=k.x-1&&x<=k.x+k.w+1&&y>=k.y-1&&y<=k.y+k.h+1)||null}
+function hit(o,e){const r=o.cv.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top; return (o.rev?[...o.bricks].reverse():o.bricks).find(k=>x>=k.x-1&&x<=k.x+k.w+1&&y>=k.y-1&&y<=k.y+k.h+1)||null}
 function fitText(g,s,max){ if(g.measureText(s).width<=max)return s; let t=s; while(t.length>2&&g.measureText(t+'.').width>max)t=t.slice(0,-1); return t.length>2?t+'.':'' }
 function draw(o,t){
-  const g=o.g; g.clearRect(0,0,o.W,o.h);
+  const g=o.g; g.clearRect(0,0,o.W,o.h); if(o.bg)o.bg(g);
   o.bricks.forEach(k=>{
     const p=k.p[yi], x=k.x, y=k.y, w=k.w, H=k.h;
     if(p==null){ k.cur=null; g.strokeStyle='#34403F'; g.lineWidth=1; g.setLineDash([3,3]); g.strokeRect(x+.5,y+.5,Math.max(1,w-1),H-1); g.setLineDash([]); return }
@@ -209,10 +258,11 @@ function draw(o,t){
     else if(w>=40&&H>=20){ g.font="700 11px Archivo, Arial, sans-serif"; const s=fitText(g,k.n,w-8); if(s)g.fillText(s,x+4,y+H-6) }
     else if(H>=44&&w>=15){ g.save(); g.translate(x+w/2+4,y+H-5); g.rotate(-Math.PI/2); g.font="700 11px Archivo, Arial, sans-serif"; const s=fitText(g,k.n,H-10); if(s)g.fillText(s,0,0); g.restore() }
     if(TESN.has(k.n)&&w>20&&H>20){ g.fillStyle='#0B1112'; g.beginPath(); g.moveTo(x+w-10,y+4); g.lineTo(x+w-4,y+10); g.lineTo(x+w-10,y+16); g.lineTo(x+w-16,y+10); g.closePath(); g.fill() }
-    if(k===hover||k===picked){ g.strokeStyle='#0B1112'; g.lineWidth=4; g.strokeRect(x+2,y+2,w-4,H-4); g.strokeStyle='#EEF1EC'; g.lineWidth=2; g.strokeRect(x-1,y-1,w+2,H+2) }
+    if((hover&&k.n===hover.n)||(picked&&k.n===picked.n)){ g.strokeStyle='#0B1112'; g.lineWidth=4; g.strokeRect(x+2,y+2,w-4,H-4); g.strokeStyle='#EEF1EC'; g.lineWidth=2; g.strokeRect(x-1,y-1,w+2,H+2) }
   });
   if(o.groups){ g.font="800 11px Archivo, Arial, sans-serif"; o.groups.forEach(q=>{ const s=q.n.toUpperCase(), tw=g.measureText(s).width; if(q.w<tw+16||q.h<26)return;
     g.fillStyle='#0B1112'; g.fillRect(q.x,q.y,tw+12,19); g.fillStyle='#EEF1EC'; g.fillText(s,q.x+6,q.y+13.5) }) }
+  if(o.fg)o.fg(g);
 }
 /* card with tree rings */
 const lerp=(a,b,t)=>'#'+[1,3,5].map(i=>{const x=parseInt(a.substr(i,2),16),y=parseInt(b.substr(i,2),16);return Math.round(x+(y-x)*t).toString(16).padStart(2,'0')}).join('');
@@ -226,6 +276,7 @@ function showCard(){
   const p=k.p[yi]; $('#cn').textContent=k.n; $('#cp').textContent=p==null?T[lang].none:p+' %  ·  '+(Y0+yi);
   let best=-1,worst=-1; k.p.forEach((v,j)=>{ if(v==null)return; if(best<0||v>k.p[best])best=j; if(worst<0||v<k.p[worst])worst=j});
   $('#cd').innerHTML=k.basin+' · '+T[lang].cap+' '+hm(k.c)+' hm3<br>'+T[lang].now+' '+k.p[N-1]+' % ('+hm(k.v)+' hm3) · '+T[lang].best+' '+(Y0+best)+' ('+k.p[best]+' %) · '+T[lang].worst+' '+(Y0+worst)+' ('+k.p[worst]+' %)'+(TESN.has(k.n)?'<br><a href="#esconde">'+T[lang].hides+': '+TESN.get(k.n).t.n[lang]+'</a>':'');
+  $('#loc').innerHTML=locSvg(k); if(LL[k.n])$('#cd').innerHTML+=' · <a href="#mapa">'+T[lang].onmap+'</a>';
 }
 $('#cx').addEventListener('click',()=>{picked=null;hover=null;showCard()});
 
@@ -237,7 +288,7 @@ function setYear(i){ yi=Math.max(0,Math.min(N-1,i)); tChange=performance.now(); 
   [...bars.children].forEach((b,k)=>{b.classList.toggle('on',k===yi); b.classList.toggle('later',k>yi)});
   $('#when').textContent=(D.dates[yi]?fmtDate(D.dates[yi]):(Y0+yi)+' · '+T[lang].nodata)+(yi===N-1?' · '+T[lang].today+' · '+hm(D.stored)+' / '+hm(D.total)+' hm3':'');
   basins.forEach(o=>{const p=o.b.p[yi]; o.pct.textContent=p==null?'':p+' %'; o.cnt.textContent=o.bricks.filter(k=>k.p[yi]!=null).length+' '+T[lang].res});
-  if(still||D.nat[yi]==null)$('#nat').textContent=D.nat[yi]==null?'· %':num(D.nat[yi],1)+' %'; showCard(); renderTes(); renderVas(); }
+  if(still||D.nat[yi]==null)$('#nat').textContent=D.nat[yi]==null?'· %':num(D.nat[yi],1)+' %'; showCard(); renderTes(); renderVas(); renderMap(); }
 function setLang(l){ lang=l; document.documentElement.lang=l; $('#l-es').setAttribute('aria-pressed',l==='es'); $('#l-en').setAttribute('aria-pressed',l==='en');
   lines.forEach((o,j)=>{o.dry.textContent=T[l].h[j]; o.wet.textContent=T[l].h[j]}); h1.setAttribute('aria-label',T[l].h.join(' '));
   $('#lede').innerHTML=T[l].lede; $('#sl').textContent=T[l].strip; foot.innerHTML='<div>'+T[l].foot+'</div><nav><a href="creditos.html">'+T[l].credits+'</a><a href="https://ko-fi.com/lessane" rel="noopener">'+T[l].kofi+'</a><a href="https://github.com/lessane-land/agua" rel="noopener">'+T[l].code+'</a></nav>'; $('#cx').setAttribute('aria-label',T[l].close); $('#year').setAttribute('aria-label',T[l].year); try{localStorage.setItem('agua-lang',l)}catch(e){} ALL.sec.querySelector('h2').textContent=T[l].all; fitHead(); setYear(yi) }
@@ -252,7 +303,7 @@ function frame(t){
   const n=D.nat[yi]==null?natCur:D.nat[yi]; if(!still&&D.nat[yi]!=null){natCur+=(n-natCur)*0.12; if(Math.abs(n-natCur)<0.04)natCur=n; $('#nat').textContent=num(natCur,1)+' %'}
   lines.forEach((o,j)=>{ const tg=levelPx(o.fs,still?n:natCur); if(o.cur==null||still){o.cur=tg}else{o.vel+=(tg-o.cur)*0.08; o.vel*=0.8; o.cur+=o.vel}
     o.wet.style.setProperty('--y',o.cur.toFixed(1)+'px'); if(!still)o.wet.style.setProperty('--x',((t*0.025+j*40)%120).toFixed(1)+'px') });
-  basins.forEach(o=>{ if(o.vis)draw(o,t) }); drawTes(t); if(VO.bricks.length&&VO.W){ const r=vcv.getBoundingClientRect(); if(r.bottom>-50&&r.top<innerHeight+50)draw(VO,t) }
+  basins.forEach(o=>{ if(o.vis)draw(o,t) }); drawTes(t); if(MO.W){ const r=mcv.getBoundingClientRect(); if(r.bottom>-50&&r.top<innerHeight+50)draw(MO,t) } if(VO.bricks.length&&VO.W){ const r=vcv.getBoundingClientRect(); if(r.bottom>-50&&r.top<innerHeight+50)draw(VO,t) }
   requestAnimationFrame(frame);
 }
 setLang(lang); layout();

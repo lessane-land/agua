@@ -112,3 +112,12 @@ footer nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px}
 .vtxt p.why{font-size:14px}.vtxt p.why.up{color:var(--water)}.vtxt p.why.down{color:var(--rock)}
 .vtxt b{color:var(--ink);font-weight:600}
 .vtxt a{color:var(--ink);text-underline-offset:3px}.vtxt a:hover{color:var(--water)}
+
+/* map, locator, towns */
+.map .tl2{margin:12px 0 18px}
+.mwrap canvas{display:block}
+#loc{float:right;margin:0 26px 4px 12px;line-height:0}
+#loc .nl{font-family:var(--mono);font-size:10px;line-height:1.4;color:var(--mute);width:70px;text-align:right}
+#ring{clear:both}
+.chips button.tw{border-style:dashed}
+.vtxt p.hon{color:var(--ink)}
