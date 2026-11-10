@@ -157,6 +157,7 @@ function init() {
   main.querySelector('footer').before(prem);
   nav = $('#nav');
   side = document.createElement('aside'); side.id = 'mside'; $('#mapa .mwrap').appendChild(side);
+  /* without this a 4x map would keep its scroll when you come back to the map */
   plus = document.createElement('div'); plus.id = 'cplus'; $('#card').appendChild(plus);
 
   addEventListener('agua:year', renderAll);
@@ -194,6 +195,7 @@ function renderAll() {
   nav.innerHTML = VIEWS.map(v => '<a href="#/' + (v === 'home' ? '' : v) + '"' + (v === view ? ' aria-current="page"' : '') + '>' + L.nav[v] + '</a>').join('');
   const prizes = awards();
   renderHome(prizes); renderPrizes(prizes); renderSide(); renderCard();
+  $('#mapa .zin').setAttribute('aria-label', A.lang === 'es' ? 'Acercar' : 'Zoom in'); $('#mapa .zout').setAttribute('aria-label', A.lang === 'es' ? 'Alejar' : 'Zoom out');
 }
 
 /* ---------- home ---------- */

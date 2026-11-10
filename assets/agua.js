@@ -57,7 +57,7 @@ const LL=G.r||{};
 const BX={lo0:-9.7,lo1:3.6,la0:35.8,la1:44.0}, KX=Math.cos(40*Math.PI/180), RATIO=(BX.la1-BX.la0)/((BX.lo1-BX.lo0)*KX);
 const proj=(W,H,lat,lon)=>[(lon-BX.lo0)/(BX.lo1-BX.lo0)*W,(BX.la1-lat)/(BX.la1-BX.la0)*H];
 const msec=document.createElement('section'); msec.className='basin map'; msec.id='mapa';
-msec.innerHTML='<div class="bh"><h2></h2><div class="bm"><b></b><span></span></div></div><p class="lede tl2"></p><div class="mwrap"><canvas></canvas></div>';
+msec.innerHTML='<div class="bh"><h2></h2><div class="bm"><b></b><span></span></div></div><p class="lede tl2"></p><div class="mwrap"><div class="mbox"><div class="mzoom"><canvas></canvas></div><div class="mctl"><button type="button" class="zin" aria-label="Acercar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="2"/></svg></button><button type="button" class="zout" aria-label="Alejar"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h12" stroke="currentColor" stroke-width="2"/></svg></button></div></div></div>';
 main.appendChild(msec);
 const mcv=msec.querySelector('canvas');
 const MO={cv:mcv,g:mcv.getContext('2d'),sec:msec,rev:true,vis:true,W:0,h:0,pats:null,
@@ -65,7 +65,21 @@ const MO={cv:mcv,g:mcv.getContext('2d'),sec:msec,rev:true,vis:true,W:0,h:0,pats:
 mcv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch')return; hover=hit(MO,e); mcv.style.cursor=hover?'pointer':'default'; tip(e)});
 mcv.addEventListener('pointerleave',()=>{hover=null; tip()});
 mcv.addEventListener('click',e=>{const k=hit(MO,e); picked=(k&&k!==picked)?k:null; showCard()});
-function sizeMap(){ const full=mcv.parentElement.clientWidth; if(!full)return; const W=Math.max(280,Math.min(full,(innerHeight-190)/RATIO)), H=Math.round(W*RATIO);
+let MZ=1; const mzw=msec.querySelector('.mzoom'), mbox=msec.querySelector('.mbox');
+/* Zoom keeps the point under the fingers (or the centre, for the buttons) in place. */
+function setZoom(z,cx,cy){ z=Math.max(1,Math.min(4,z)); const r=mcv.getBoundingClientRect(), b=mzw.getBoundingClientRect();
+  if(cx==null){cx=b.left+b.width/2; cy=b.top+b.height/2}
+  const fx=(cx-r.left)/r.width, fy=(cy-r.top)/r.height; MZ=z; mcv.style.transform=''; sizeMap(); MO.bricks.forEach(k=>{k.cur=null});
+  mzw.scrollLeft=fx*MO.W-(cx-b.left); mzw.scrollTop=fy*MO.h-(cy-b.top); draw(MO,performance.now()) }
+msec.querySelector('.zin').addEventListener('click',()=>setZoom(MZ*1.6));
+msec.querySelector('.zout').addEventListener('click',()=>setZoom(MZ/1.6));
+let pz=null; const pd=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+mcv.addEventListener('touchstart',e=>{ if(e.touches.length===2){ const r=mcv.getBoundingClientRect(), mx=(e.touches[0].clientX+e.touches[1].clientX)/2, my=(e.touches[0].clientY+e.touches[1].clientY)/2;
+  pz={d:pd(e.touches),z:MZ,mx,my,s:1}; mcv.style.transformOrigin=(mx-r.left)+'px '+(my-r.top)+'px' } },{passive:true});
+mcv.addEventListener('touchmove',e=>{ if(!pz||e.touches.length!==2)return; e.preventDefault(); pz.s=Math.max(1/pz.z,Math.min(4/pz.z,pd(e.touches)/pz.d)); mcv.style.transform='scale('+pz.s+')' },{passive:false});
+mcv.addEventListener('touchend',e=>{ if(!pz||e.touches.length>1)return; const q=pz; pz=null; setZoom(q.z*q.s,q.mx,q.my) });
+mcv.addEventListener('touchcancel',()=>{ pz=null; mcv.style.transform='' });
+function sizeMap(){ const full=msec.querySelector('.mwrap').clientWidth; if(!full)return; const B=Math.max(280,Math.min(full,(innerHeight-190)/RATIO)), W=Math.round(B*MZ), H=Math.round(W*RATIO); mzw.style.width=B+'px'; mzw.style.height=Math.round(B*RATIO)+'px'; mbox.classList.toggle('zoomed',MZ>1);
   MO.W=W; MO.h=H; mcv.style.width=W+'px'; mcv.style.height=H+'px'; mcv.width=Math.round(W*dpr); mcv.height=Math.round(H*dpr); MO.g.setTransform(dpr,0,0,dpr,0,0); MO.pats=ROCKS.map(c=>MO.g.createPattern(c,'repeat'));
   MO.bricks.forEach(k=>{ const s=Math.max(W<500?4:5,Math.sqrt(k.c)*W/1150), q=proj(W,H,k.ll[0],k.ll[1]); k.w=s; k.h=s; k.x=q[0]-s/2; k.y=q[1]-s/2 }) }
 function ring(g,W,H,r){ g.beginPath(); r.forEach((q,i)=>{ const a=proj(W,H,q[1],q[0]); i?g.lineTo(a[0],a[1]):g.moveTo(a[0],a[1]) }); g.closePath() }

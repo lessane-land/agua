@@ -106,3 +106,13 @@ body:not([data-view="home"]) main{padding-top:clamp(20px,4vh,40px)}
   .home .teaser{margin-top:24px}
   body[data-view="home"] main{padding-top:20px}
 }
+
+/* map zoom */
+.mbox{position:relative;flex:none;max-width:100%}
+.mzoom{overflow:hidden;max-width:100%;overscroll-behavior:contain;scrollbar-width:thin}
+.mbox.zoomed .mzoom{overflow:auto;outline:2px solid var(--line)}
+.mzoom canvas{touch-action:pan-x pan-y;transform-origin:0 0}
+.mctl{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px}
+.mctl button{width:44px;height:44px;display:grid;place-items:center;background:var(--dark);border:2px solid var(--ink);color:var(--ink);padding:0}
+.mctl button:hover{background:var(--ink);color:var(--dark)}
+.mbox:not(.zoomed) .zout{opacity:.35;pointer-events:none}

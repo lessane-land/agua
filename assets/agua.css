@@ -43,7 +43,7 @@ main{padding:clamp(28px,6vh,64px) 0 190px;display:flex;flex-direction:column;gap
 .bh h2{margin:0;font-weight:900;font-stretch:66%;text-transform:uppercase;font-size:clamp(30px,6vw,72px);line-height:.88;letter-spacing:0;text-wrap:balance}
 .bm{font-family:var(--mono);font-size:12px;color:var(--mute);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .bm b{display:block;font-size:clamp(18px,2.6vw,28px);font-weight:600;color:var(--water)}
-canvas{display:block;touch-action:pan-y}
+canvas{display:block;touch-action:manipulation}
 footer{padding:0 var(--pad);font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--mute);max-width:74ch}
 .dock{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:2px solid var(--line);padding:10px var(--pad) 14px;display:flex;gap:14px;align-items:flex-end;z-index:3}
 #play{flex:none;width:44px;height:44px;border:2px solid var(--ink);background:transparent;display:grid;place-items:center}
