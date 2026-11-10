@@ -1,0 +1,196 @@
+[
+  {
+    "id": "madrid",
+    "lugar": {
+      "es": "Madrid",
+      "en": "Madrid"
+    },
+    "tambien": [],
+    "operador": "Canal de Isabel II",
+    "embalses": [
+      "El Atazar",
+      "Valmayor",
+      "Santillana",
+      "El Vado",
+      "Puentes Viejas",
+      "Riosequillo",
+      "Vellón,El-(Pedrezuela)",
+      "Pinilla",
+      "Aceña",
+      "El Villar",
+      "Navacerrada",
+      "La Jarosa"
+    ],
+    "faltan": [
+      "Navalmedio"
+    ],
+    "nota": {
+      "es": "Canal de Isabel II abastece a la Comunidad de Madrid con trece embalses. El Atazar, el mayor, aporta el 46 % del abastecimiento.",
+      "en": "Canal de Isabel II supplies the Madrid region from thirteen reservoirs. El Atazar, the largest, provides 46% of the supply."
+    },
+    "fuentes": [
+      {
+        "t": "Comunidad de Madrid, nota de prensa del 21 may 2025",
+        "u": "https://www.comunidad.madrid/file/473540/download"
+      },
+      {
+        "t": "Comunidad de Madrid, 21 may 2025",
+        "u": "https://www.comunidad.madrid/node/89752"
+      }
+    ]
+  },
+  {
+    "id": "barcelona",
+    "lugar": {
+      "es": "Barcelona",
+      "en": "Barcelona"
+    },
+    "tambien": [],
+    "operador": "Sistema Ter-Llobregat (ACA, ATL)",
+    "embalses": [
+      "Susqueda",
+      "Sau",
+      "La Baells",
+      "La Llosa del Cavall",
+      "Sant Pons"
+    ],
+    "faltan": [
+      "El Pasteral"
+    ],
+    "nota": {
+      "es": "El agua del Ter llega de Sau, Susqueda y El Pasteral; la del Llobregat, de La Baells, La Llosa del Cavall y Sant Ponç. Barcelona usa además agua subterránea del delta del Llobregat, que aquí no se cuenta.",
+      "en": "Ter water comes from Sau, Susqueda and El Pasteral; Llobregat water from La Baells, La Llosa del Cavall and Sant Ponç. Barcelona also uses groundwater from the Llobregat delta, which is not counted here."
+    },
+    "fuentes": [
+      {
+        "t": "Ajuntament de Barcelona, El consum d'aigua a Barcelona 2021",
+        "u": "https://bcnroc.ajuntament.barcelona.cat/jspui/bitstream/11703/125255/3/Consum Aigua 2021_bcnroc.pdf"
+      },
+      {
+        "t": "Aigües de Barcelona, memoria 2022",
+        "u": "https://www.aiguesdebarcelona.cat/documents/42802/481302/Memoria_Explotacion_AB_2022.pdf"
+      }
+    ]
+  },
+  {
+    "id": "sevilla",
+    "lugar": {
+      "es": "Sevilla",
+      "en": "Seville"
+    },
+    "tambien": [
+      "Alcalá de Guadaíra",
+      "Alcalá del Río",
+      "Camas",
+      "Coria del Río",
+      "Dos Hermanas",
+      "El Garrobo",
+      "El Ronquillo",
+      "La Puebla del Río",
+      "La Rinconada",
+      "Mairena del Alcor"
+    ],
+    "operador": "EMASESA",
+    "embalses": [
+      "Los Melonares",
+      "Zufre",
+      "Aracena",
+      "Cala",
+      "La Minilla",
+      "Gergal"
+    ],
+    "faltan": [],
+    "nota": {
+      "es": "EMASESA abastece a Sevilla y su área metropolitana con seis embalses, repartidos entre Sevilla y Huelva.",
+      "en": "EMASESA supplies Seville and its metropolitan area from six reservoirs, spread across Seville and Huelva provinces."
+    },
+    "fuentes": [
+      {
+        "t": "EMASESA, presentación sobre sus embalses",
+        "u": "https://www.aguasresiduales.info/media/images/ckfinder/userfiles/files/2__Presentacio_n_EMASESA.pdf"
+      },
+      {
+        "t": "EMASESA, declaración ambiental",
+        "u": "https://catedra.us.es/catedraemasesa/wp-content/uploads/2020/11/Declaracion-ambiental-Anexo-VII-AGUAS-DE-SEVILLA-firmado.pdf"
+      }
+    ]
+  },
+  {
+    "id": "bilbao",
+    "lugar": {
+      "es": "Bilbao",
+      "en": "Bilbao"
+    },
+    "tambien": [],
+    "operador": "Consorcio de Aguas Bilbao Bizkaia",
+    "embalses": [
+      "Ullivarri",
+      "Urrunaga",
+      "Ordunte"
+    ],
+    "faltan": [
+      "Undurraga"
+    ],
+    "nota": {
+      "es": "El sistema del Zadorra, con los embalses alaveses de Ullíbarri-Gamboa y Urrúnaga, es la fuente principal. El embalse de Ordunte es el segundo sistema.",
+      "en": "The Zadorra system, with the Ullíbarri-Gamboa and Urrúnaga reservoirs in Álava, is the main source. The Ordunte reservoir is the second system."
+    },
+    "fuentes": [
+      {
+        "t": "Deia, 2 dic 2024",
+        "u": "https://www.deia.eus/bizkaia/2024/12/02/proyectos-abastecimiento-cabb-agua-8976034.html"
+      },
+      {
+        "t": "Limnetica, red de embalses del Consorcio",
+        "u": "https://recyt.fecyt.es/index.php/Limnetica/article/view/111022/83719"
+      }
+    ]
+  },
+  {
+    "id": "zaragoza",
+    "lugar": {
+      "es": "Zaragoza",
+      "en": "Zaragoza"
+    },
+    "tambien": [],
+    "operador": "Ayuntamiento de Zaragoza",
+    "embalses": [
+      "Yesa"
+    ],
+    "faltan": [],
+    "nota": {
+      "es": "En 2024 el 91,3 % del agua de Zaragoza llegó del embalse de Yesa. El resto se capta del Canal Imperial de Aragón o del Ebro, que no son embalses y aquí no se cuentan.",
+      "en": "In 2024, 91.3% of Zaragoza's water came from the Yesa reservoir. The rest is taken from the Canal Imperial de Aragón or the Ebro, which are not reservoirs and are not counted here."
+    },
+    "fuentes": [
+      {
+        "t": "Ayuntamiento de Zaragoza, 15 mar 2025",
+        "u": "https://www.zaragoza.es/sede/portal/turismo/es-util/servicio/noticia/detail/338949"
+      }
+    ]
+  },
+  {
+    "id": "vitoria",
+    "lugar": {
+      "es": "Vitoria-Gasteiz",
+      "en": "Vitoria-Gasteiz"
+    },
+    "tambien": [],
+    "operador": "AMVISA",
+    "embalses": [
+      "Ullivarri",
+      "Albiña"
+    ],
+    "faltan": [],
+    "nota": {
+      "es": "El agua llega sobre todo del sistema del Zadorra, con Ullíbarri-Gamboa como pieza principal. El embalse de Albina aporta alrededor del 14 %.",
+      "en": "The water comes mainly from the Zadorra system, with Ullíbarri-Gamboa as its main piece. The Albina reservoir provides around 14%."
+    },
+    "fuentes": [
+      {
+        "t": "Gasteiz Hoy, con datos de AMVISA",
+        "u": "https://www.gasteizhoy.com/origen-agua-alava/"
+      }
+    ]
+  }
+]

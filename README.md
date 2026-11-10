@@ -10,6 +10,7 @@ Live: https://agua.lessane.es
 
 - No build step. `index.html`, `assets/agua.css` and `assets/agua.js` are served as they are by GitHub Pages.
 - `data/agua.json` is the only data file. `tools/build_data.py` (standard library Python, plus `mdbtools`) rebuilds it from MITECO's weekly history file. The visitor's browser never calls MITECO.
+- `data/tesoros.json` (drowned places and dated sightings) and `data/vasos.json` (which reservoirs supply which city) are written by hand, with a source for every line. The script checks them against the bulletin and folds them into `data/agua.json`.
 - `.github/workflows/datos.yml` runs the script twice a week and commits the file only when it changed.
 
 ## Run it locally

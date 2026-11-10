@@ -13,6 +13,7 @@ Usage:
   python3 tools/build_data.py --mdb X.mdb  skip the download and read a local file
 
 data/tesoros.json is written by hand: drowned places and dated, sourced sightings.
+data/vasos.json is written by hand: which reservoirs supply which city, per operator.
 """
 import csv, datetime, io, json, os, subprocess, sys, tempfile, time, urllib.request, zipfile
 
@@ -21,6 +22,7 @@ URL = ("https://www.miteco.gob.es/content/dam/miteco/es/agua/temas/"
        "Historico-de-embalses/BD-Embalses.zip")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TREASURES = os.path.join(ROOT, "data", "tesoros.json")
+GLASSES = os.path.join(ROOT, "data", "vasos.json")
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "agua.json")
 FIRST_YEAR = 1988
 MAX_DAYS_APART = 4          # a bulletin counts as "the same week" within this many days
@@ -121,6 +123,22 @@ def treasures(by_date, dates):
     return out
 
 
+def glasses(today):
+    """Checks data/vasos.json (which reservoirs supply which city, written by hand from
+    each operator's own documents) against the reservoirs in the latest bulletin."""
+    with open(GLASSES, encoding="utf-8") as f:
+        items = json.load(f)
+    known = {nice(r[1]) for r in today}
+    out = []
+    for it in items:
+        missing = [n for n in it["embalses"] if n not in known]
+        if missing:
+            raise SystemExit("vasos.json: %s names reservoirs not in the bulletin: %s" % (it["id"], missing))
+        out.append({"id": it["id"], "n": it["lugar"], "also": it["tambien"], "op": it["operador"], "r": it["embalses"],
+                    "miss": it["faltan"], "note": it["nota"], "src": it["fuentes"]})
+    return out
+
+
 def build(mdb):
     by_date = {}
     for d, basin, name, cap, vol in read_rows(mdb):
@@ -167,7 +185,7 @@ def build(mdb):
                            "r": [[nice(n), round(c), pct[(b, n)], round(v)] for b, n, c, v in rs]})
     out = {"date": latest.isoformat(), "first": FIRST_YEAR, "dates": [d.isoformat() if d else None for d in picked],
            "nat": nat, "total": round(sum(r[2] for r in today)), "stored": round(sum(r[3] for r in today)),
-           "basins": basins, "t": treasures(by_date, dates)}
+           "basins": basins, "t": treasures(by_date, dates), "v": glasses(today)}
     count = sum(len(b["r"]) for b in basins)
     # Refuse to publish something that looks broken; the site keeps last week's file.
     if count < 300 or not (5 <= nat[-1] <= 100) or not (40000 <= out["total"] <= 80000):
