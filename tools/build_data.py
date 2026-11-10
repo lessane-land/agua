@@ -11,12 +11,16 @@ bulletin closest to the same day of each year since 1988, so the site can show
 Usage:
   python3 tools/build_data.py              download, convert, write data/agua.json
   python3 tools/build_data.py --mdb X.mdb  skip the download and read a local file
+
+data/tesoros.json is written by hand: drowned places and dated, sourced sightings.
 """
 import csv, datetime, io, json, os, subprocess, sys, tempfile, time, urllib.request, zipfile
 
 URL = ("https://www.miteco.gob.es/content/dam/miteco/es/agua/temas/"
        "evaluacion-de-los-recursos-hidricos/boletin-hidrologico/"
        "Historico-de-embalses/BD-Embalses.zip")
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TREASURES = os.path.join(ROOT, "data", "tesoros.json")
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "agua.json")
 FIRST_YEAR = 1988
 MAX_DAYS_APART = 4          # a bulletin counts as "the same week" within this many days
@@ -95,6 +99,28 @@ def nice(name):
     return name
 
 
+def treasures(by_date, dates):
+    """Joins the hand-written sightings in data/tesoros.json with the reservoir level
+    on the bulletin closest to each sighting. Nothing here is estimated: a sighting
+    with no bulletin within MAX_DAYS_APART days stops the build."""
+    with open(TREASURES, encoding="utf-8") as f:
+        items = json.load(f)
+    out = []
+    for it in items:
+        seen = []
+        for a in it["avistamientos"]:
+            day = datetime.date.fromisoformat(a["fecha"])
+            best = min(dates, key=lambda d: abs((d - day).days))
+            row = next((r for r in by_date[best] if r[1] == it["embalse"]), None)
+            if abs((best - day).days) > MAX_DAYS_APART or row is None:
+                raise SystemExit("no bulletin for %s on %s" % (it["id"], a["fecha"]))
+            seen.append({"d": a["fecha"], "s": a["estado"], "pct": round(100 * row[3] / row[2]), "b": best.isoformat(),
+                         "said": a.get("dicho", ""), "note": a["nota"], "t": a["t"], "u": a["u"]})
+        out.append({"id": it["id"], "r": nice(it["embalse"]), "kind": it["tipo"], "n": it["nombre"],
+                    "txt": it["txt"], "src": it["fuentes"], "obs": sorted(seen, key=lambda o: o["pct"])})
+    return out
+
+
 def build(mdb):
     by_date = {}
     for d, basin, name, cap, vol in read_rows(mdb):
@@ -141,7 +167,7 @@ def build(mdb):
                            "r": [[nice(n), round(c), pct[(b, n)], round(v)] for b, n, c, v in rs]})
     out = {"date": latest.isoformat(), "first": FIRST_YEAR, "dates": [d.isoformat() if d else None for d in picked],
            "nat": nat, "total": round(sum(r[2] for r in today)), "stored": round(sum(r[3] for r in today)),
-           "basins": basins}
+           "basins": basins, "t": treasures(by_date, dates)}
     count = sum(len(b["r"]) for b in basins)
     # Refuse to publish something that looks broken; the site keeps last week's file.
     if count < 300 or not (5 <= nat[-1] <= 100) or not (40000 <= out["total"] <= 80000):

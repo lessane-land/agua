@@ -1,0 +1,50 @@
+[
+  {
+    "id": "sau",
+    "embalse": "Sau",
+    "tipo": "iglesia",
+    "nombre": {"es": "Sant Romà de Sau", "en": "Sant Romà de Sau"},
+    "txt": {
+      "es": "Una iglesia románica consagrada en 1062. En los años sesenta el embalse de Sau cubrió el pueblo y la iglesia con él. El campanario se quedó de pie y hoy es el termómetro popular de la sequía en Cataluña: cuanto más campanario se ve, peor va el agua.",
+      "en": "A Romanesque church consecrated in 1062. In the 1960s the Sau reservoir covered the village and the church with it. The bell tower stayed standing and is now Catalonia's unofficial drought gauge: the more tower you see, the worse the water is doing."
+    },
+    "fuentes": [
+      {"t": "Diputació de Barcelona, Mapes de Patrimoni Cultural", "u": "https://patrimonicultural.diba.cat/print/pdf/node/72888"}
+    ],
+    "avistamientos": [
+      {"fecha": "2024-07-15", "estado": "fuera", "dicho": "36,9 %",
+       "nota": {"es": "Se llega a la iglesia a pie", "en": "The church can be reached on foot"},
+       "t": "Nació Digital", "u": "https://naciodigital.cat/impacte/terra/sau-perd-quasi-10-punts-esglesia-torna-ser-accessible.html"},
+      {"fecha": "2024-06-21", "estado": "parcial", "dicho": "45,7 %",
+       "nota": {"es": "Iglesia rodeada de agua, campanario cubierto en parte", "en": "Church surrounded by water, bell tower partly covered"},
+       "t": "Nació Digital", "u": "https://naciodigital.cat/impacte/terra/sau-supera-45-termometre-sequera-vista-ocell.html"},
+      {"fecha": "2025-04-11", "estado": "parcial", "dicho": "72 %",
+       "nota": {"es": "Casi sumergida del todo, solo asoma lo alto del campanario", "en": "Almost fully submerged, only the top of the bell tower shows"},
+       "t": "Catalan News", "u": "https://www.catalannews.com/society-science/item/sau-reservoir-drought-empty-sinking-church-11-april-2025"}
+    ]
+  },
+  {
+    "id": "guadalperal",
+    "embalse": "Valdecañas",
+    "tipo": "dolmen",
+    "nombre": {"es": "Dolmen de Guadalperal", "en": "Dolmen of Guadalperal"},
+    "txt": {
+      "es": "Un monumento megalítico de más de cien piedras hincadas junto al Tajo. Hugo Obermaier lo excavó en los años veinte y en 1963 lo cubrió el embalse de Valdecañas. En el verano de 2019 quedó entero al descubierto por primera vez desde que se llenó el embalse.",
+      "en": "A megalithic monument of more than a hundred standing stones beside the Tagus. Hugo Obermaier excavated it in the 1920s and in 1963 the Valdecañas reservoir covered it. In the summer of 2019 it stood fully exposed for the first time since the reservoir was filled."
+    },
+    "fuentes": [
+      {"t": "NASA Earth Observatory", "u": "https://earthobservatory.nasa.gov/images/145619/drought-reveals-lost-spanish-stonehenge"}
+    ],
+    "avistamientos": [
+      {"fecha": "2019-07-28", "estado": "fuera", "dicho": "",
+       "nota": {"es": "Todo el conjunto fuera del agua", "en": "The whole monument out of the water"},
+       "t": "NASA Earth Observatory", "u": "https://earthobservatory.nasa.gov/images/145619/drought-reveals-lost-spanish-stonehenge"},
+      {"fecha": "2022-08-24", "estado": "fuera", "dicho": "28 %",
+       "nota": {"es": "Totalmente al descubierto", "en": "Fully exposed"},
+       "t": "Expansión, con información de Reuters", "u": "https://expansion.mx/mundo/2022/08/24/dolmen-de-guadalperal-stonehenge-espanol"},
+      {"fecha": "2020-12-01", "estado": "cubierto", "dicho": "",
+       "nota": {"es": "Bajo el agua durante la prospección subacuática del Ministerio de Cultura", "en": "Under water during the Culture Ministry's underwater survey"},
+       "t": "Ministerio de Cultura y Deporte, vía UCM", "u": "https://www.ucm.es/el-ministerio-de-cultura-y-deporte-termina-la-primera-campana-de-prospeccion-subacuatica-en-el-dolmen-de-guadalperal-y-el-yacimiento-de-augustobriga-en-caceres"}
+    ]
+  }
+]

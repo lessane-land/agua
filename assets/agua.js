@@ -10,12 +10,12 @@ const T={es:{h:['España','se llena'],strip:'ESTA SEMANA EN OTROS AÑOS',today:'
   lede:'<b>Cada ladrillo es un embalse.</b> El tamaño es su capacidad, el agua es lo que tiene y la roca es lo que falta. Arriba, toda España en una pantalla; debajo, cuenca a cuenca, de norte a sur. Toca uno. Mueve los años.',
   foot:'Origen de los datos: MITECO, Boletín Hidrológico semanal. Datos provisionales, sin validar. Embalses peninsulares de más de 5 hm3: no incluye las islas, Ceuta ni Melilla. El área de cada ladrillo es su capacidad de hoy, a la misma escala en toda España. Cada año muestra el boletín más cercano a la fecha de hoy. Un hueco es un embalse que aún no existía.',
   credits:'Créditos y fuentes',kofi:'Invítame a un café',code:'Código',nodata:'sin boletín',
-  none:'aún no existía',cap:'capacidad',now:'último dato',best:'más lleno',worst:'más vacío',ring:'esta semana, cada año',all:'Toda España'},
+  none:'aún no existía',cap:'capacidad',now:'último dato',best:'más lleno',worst:'más vacío',ring:'esta semana, cada año',all:'Toda España',hid:'Lo que el agua esconde',hidn:'lugares con testigos',hidlede:'Bajo algunos embalses hay iglesias, pueblos y piedras de hace miles de años. Aquí solo entra lo que alguien vio y fechó: cada raya es un avistamiento con su fuente, cruzado con el nivel del embalse ese día. Lo que nadie ha documentado no se inventa.',v_out:'Fuera del agua',v_part:'Asoma',v_under:'Bajo el agua',v_unk:'Sin testigos a este nivel',w_out:'Visto fuera con el embalse igual o más lleno',w_part:'Como mínimo',w_under:'Visto cubierto con el embalse igual o más vacío',w_unk:'Nadie lo ha documentado con el embalse a este nivel. Mira las rayas: fuera por debajo, cubierto por encima.',s_fuera:'fuera',s_parcial:'asoma',s_cubierto:'cubierto',seen:'Avistamientos',src:'Fuente',said:'la fuente dice',in:'Embalse de',hides:'Esconde',sketch:'Dibujo esquemático. La figura se coloca entre los avistamientos, no según un plano.'},
  en:{h:['Spain','fills up'],strip:'THIS WEEK IN OTHER YEARS',today:'latest bulletin',play:'Play',pause:'Pause',res:'reservoirs',close:'Close',year:'Year',
   lede:'<b>Every brick is a reservoir.</b> Size is its capacity, water is what it holds and rock is what is missing. Above, all of Spain on one screen; below, basin by basin, north to south. Tap one. Move the years.',
   foot:'Data source: MITECO, weekly Boletín Hidrológico. Provisional, unvalidated data. Mainland reservoirs over 5 hm3: the islands, Ceuta and Melilla are not included. Each brick\'s area is its capacity today, at one scale for all of Spain. Each year shows the bulletin closest to today\'s date. A gap is a reservoir that did not exist yet.',
   credits:'Credits and sources',kofi:'Buy me a coffee',code:'Code',nodata:'no bulletin',
-  none:'did not exist yet',cap:'capacity',now:'latest',best:'fullest',worst:'emptiest',ring:'this week, every year',all:'All of Spain'}};
+  none:'did not exist yet',cap:'capacity',now:'latest',best:'fullest',worst:'emptiest',ring:'this week, every year',all:'All of Spain',hid:'What the water hides',hidn:'places with witnesses',hidlede:'Under some reservoirs lie churches, villages and stones thousands of years old. Only what someone saw and dated gets in: each line is a sighting with its source, matched to the reservoir level that day. What nobody has documented is not made up.',v_out:'Out of the water',v_part:'Showing',v_under:'Under water',v_unk:'No witnesses at this level',w_out:'Seen out with the reservoir as full or fuller',w_part:'At the very least',w_under:'Seen covered with the reservoir as empty or emptier',w_unk:'Nobody has documented it with the reservoir at this level. Check the lines: out below, covered above.',s_fuera:'out',s_parcial:'showing',s_cubierto:'covered',seen:'Sightings',src:'Source',said:'the source says',in:'Reservoir:',hides:'Hides',sketch:'Schematic drawing. The figure is placed between the sightings, not from a survey.'}};
 let lang=startLang(), yi=N-1, playing=null, hover=null, picked=null, tChange=0;
 const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=s=>document.querySelector(s);
@@ -49,6 +49,61 @@ function mk(b,src,all){
   return o;
 }
 const ALL=mk({n:'',p:D.nat.map(v=>Math.round(v))},D.basins.flatMap(b=>b.r.map(r=>[r[0],r[1],r[2],r[3],b.n])),true); idx=0;
+
+/* ---------- layer 2: what the water hides ---------- */
+const TES=(D.t||[]).map(t=>({t,k:ALL.bricks.find(k=>k.n===t.r),cur:null,vel:0})).filter(o=>o.k);
+const TESN=new Map(TES.map(o=>[o.t.r,o]));
+const tsec=document.createElement('section'); tsec.className='basin tes'; tsec.id='esconde';
+tsec.innerHTML='<div class="bh"><h2></h2><div class="bm"><b>'+TES.length+'</b><span></span></div></div><p class="lede tl2"></p><div class="tlist"></div>';
+if(TES.length)main.appendChild(tsec);
+TES.forEach(o=>{ const a=document.createElement('article'); a.innerHTML='<div><canvas></canvas><p class="sk"></p></div><div class="tx"></div>'; tsec.querySelector('.tlist').appendChild(a);
+  o.cv=a.querySelector('canvas'); o.g=o.cv.getContext('2d'); o.tx=a.querySelector('.tx'); o.sk=a.querySelector('.sk') });
+function verdict(o){ const p=o.k.p[yi]; if(p==null)return null; const ob=o.t.obs;
+  const up=s=>ob.filter(x=>x.s===s&&x.pct>=p).sort((a,b)=>a.pct-b.pct)[0];
+  const out=up('fuera'); if(out)return {v:'out',o:out};
+  const part=up('parcial'); if(part)return {v:'part',o:part};
+  const un=ob.filter(x=>x.s==='cubierto'&&x.pct<=p).sort((a,b)=>b.pct-a.pct)[0]; if(un)return {v:'under',o:un};
+  return {v:'unk'} }
+const fmtMon=iso=>new Date(iso+'T12:00:00').toLocaleDateString(lang==='es'?'es-ES':'en-GB',{month:'short',year:'numeric'});
+function renderTes(){ if(!TES.length)return; const L=T[lang];
+  tsec.querySelector('h2').textContent=L.hid; tsec.querySelector('.bm span').textContent=L.hidn; tsec.querySelector('.tl2').textContent=L.hidlede;
+  TES.forEach(o=>{ const t=o.t, p=o.k.p[yi], r=verdict(o); o.sk.textContent=L.sketch;
+    let h='<div class="vd v-'+(r?r.v:'unk')+'">'+(r?L['v_'+r.v]:L.none)+'</div><h3>'+t.n[lang]+'</h3>';
+    h+='<div class="tr">'+L.in+' '+t.r+' · <b>'+(p==null?L.none:p+' %')+'</b> · '+(D.dates[yi]?fmtDate(D.dates[yi]):(Y0+yi))+'</div>';
+    if(r)h+='<p class="why">'+L['w_'+r.v]+(r.o?': '+r.o.note[lang].toLowerCase()+' ('+r.o.pct+' %, '+fmtMon(r.o.d)+').':'')+'</p>';
+    h+='<p>'+t.txt[lang]+'</p><h4>'+L.seen+'</h4><ul>';
+    t.obs.forEach(x=>{ h+='<li><b>'+x.pct+' %</b> · '+fmtDate(x.d)+' · '+L['s_'+x.s]+'. '+x.note[lang]+'. <a href="'+x.u+'" rel="noopener">'+x.t+'</a>'+(x.said?' ('+L.said+' '+x.said+')':'')+'</li>' });
+    h+='</ul><p class="srcs">'+L.src+': '+t.src.map(x=>'<a href="'+x.u+'" rel="noopener">'+x.t+'</a>').join(', ')+'</p>';
+    o.tx.innerHTML=h }) }
+const TH=250;
+function sizeTes(){ TES.forEach(o=>{ const W=o.cv.parentElement.clientWidth; if(!W)return; o.W=W; o.cv.style.width=W+'px'; o.cv.style.height=TH+'px'; o.cv.width=Math.round(W*dpr); o.cv.height=Math.round(TH*dpr); o.g.setTransform(dpr,0,0,dpr,0,0); o.pat=o.g.createPattern(ROCKS[0],'repeat') }) }
+function drawTes(tm){ TES.forEach(o=>{ if(!o.W)return; const r=o.cv.getBoundingClientRect(); if(r.bottom<-50||r.top>innerHeight+50)return;
+  const g=o.g, W=o.W, top=26, floor=TH-22, dam=W-18, lx0=0, lx1=W*0.36, span=floor-top, p=o.k.p[yi];
+  const Yp=q=>floor-span*q/100, sx=y=>lx0+(y-top)/span*(lx1-lx0);
+  g.clearRect(0,0,W,TH);
+  g.beginPath(); g.moveTo(lx0,top); g.lineTo(dam,top); g.lineTo(dam,floor); g.lineTo(lx1,floor); g.closePath(); g.fillStyle=o.pat; g.fill();
+  if(p!=null){ if(o.cur==null||still){o.cur=p;o.vel=0}else{o.vel+=(p-o.cur)*0.07;o.vel*=0.84;o.cur+=o.vel}
+    const yw=Yp(Math.max(0,Math.min(100,o.cur)));
+    g.save(); g.beginPath(); g.moveTo(lx0,top); g.lineTo(dam,top); g.lineTo(dam,floor); g.lineTo(lx1,floor); g.closePath(); g.clip();
+    g.beginPath(); g.moveTo(0,yw); for(let X=0;X<=dam;X+=6)g.lineTo(X,yw+(still?0:Math.sin(X*0.05+tm*0.002)*2)); g.lineTo(dam,floor); g.lineTo(0,floor); g.closePath(); g.fillStyle='#3F93A8'; g.fill(); g.restore();
+    g.fillStyle='#EEF1EC'; g.fillRect(sx(yw),yw-1.5,dam-sx(yw),3) }
+  /* the figure stands between the highest level it was seen fully out and the lowest level it was seen covered (or the highest partial sighting) */
+  const ob=o.t.obs, mx=(s)=>Math.max(...ob.filter(x=>x.s===s).map(x=>x.pct)), mn=(s)=>Math.min(...ob.filter(x=>x.s===s).map(x=>x.pct));
+  let b=mx('fuera'), tp=mn('cubierto'); if(!isFinite(tp))tp=mx('parcial'); if(!isFinite(b))b=0; if(!isFinite(tp))tp=b+20;
+  const yb=Yp(b), yt=Math.min(Yp(tp),yb-26), x0=sx(yb)+18;
+  g.fillStyle='#0B1112'; g.strokeStyle='#EEF1EC'; g.lineWidth=1.5; g.lineJoin='round';
+  const box=(x,y,w,h)=>{g.fillRect(x,y,w,h); g.strokeRect(x,y,w,h)};
+  if(o.t.kind==='iglesia'){ const nh=Math.min(26,(yb-yt)*0.3); box(x0+16,yb-nh,40,nh); box(x0,yt+12,16,yb-yt-12); g.beginPath(); g.moveTo(x0-2,yt+12); g.lineTo(x0+8,yt); g.lineTo(x0+18,yt+12); g.closePath(); g.fill(); g.stroke() }
+  else { [0.78,1,0.86,0.94,0.7,0.9].forEach((f,i)=>{ const h=(yb-yt)*f; box(x0+i*13,yb-h,8,h) }) }
+  /* sightings */
+  g.font="600 10px 'IBM Plex Mono', monospace"; g.textBaseline='middle';
+  let last=-99; [...ob].sort((a,b)=>b.pct-a.pct).forEach(x=>{ const y=Yp(x.pct); g.strokeStyle='#0B1112'; g.lineWidth=2; g.setLineDash([5,4]); g.beginPath(); g.moveTo(sx(y),y); g.lineTo(dam,y); g.stroke(); g.setLineDash([]);
+    const s=x.pct+' % · '+T[lang]['s_'+x.s]+' · '+fmtMon(x.d), tw=g.measureText(s).width, lx=dam-10-tw, ly=Math.max(y,last+18); last=ly;
+    g.fillStyle='#0B1112'; g.fillRect(lx-5,ly-8,tw+10,16); g.fillStyle='#EEF1EC'; g.fillText(s,lx,ly+0.5) });
+  g.textBaseline='alphabetic';
+  g.beginPath(); g.moveTo(dam,top-12); g.lineTo(dam+10,top-12); g.lineTo(dam+16,floor+4); g.lineTo(dam,floor+4); g.closePath(); g.fillStyle='#EEF1EC'; g.fill();
+  g.fillStyle='#34403F'; g.fillRect(0,floor+4,W,2) }) }
+
 D.basins.forEach(b=>mk(b,b.r,false));
 const foot=document.createElement('footer'); main.appendChild(foot);
 const io=new IntersectionObserver(es=>es.forEach(e=>{const o=basins.find(x=>x.sec===e.target); if(o)o.vis=e.isIntersecting}),{rootMargin:'300px'});
@@ -80,6 +135,7 @@ function layout(){
       squarify(o.bricks,areas,{x:0,y:0,w:bw,h:bh}); }
     o.h=Math.ceil(bh); o.W=Math.ceil(bw); o.cv.style.width=o.W+'px'; o.cv.style.height=o.h+'px'; o.cv.width=Math.round(o.W*dpr); o.cv.height=Math.round(o.h*dpr);
     o.g.setTransform(dpr,0,0,dpr,0,0); o.pats=ROCKS.map(c=>o.g.createPattern(c,'repeat')); });
+  sizeTes();
 }
 function hit(o,e){const r=o.cv.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top; return o.bricks.find(k=>x>=k.x-1&&x<=k.x+k.w+1&&y>=k.y-1&&y<=k.y+k.h+1)||null}
 function fitText(g,s,max){ if(g.measureText(s).width<=max)return s; let t=s; while(t.length>2&&g.measureText(t+'.').width>max)t=t.slice(0,-1); return t.length>2?t+'.':'' }
@@ -106,6 +162,7 @@ function draw(o,t){
       g.font="600 12px 'IBM Plex Mono', monospace"; g.fillText(Math.round(cur)+' %',x+7,y+H-9) }
     else if(w>=40&&H>=20){ g.font="700 11px Archivo, Arial, sans-serif"; const s=fitText(g,k.n,w-8); if(s)g.fillText(s,x+4,y+H-6) }
     else if(H>=44&&w>=15){ g.save(); g.translate(x+w/2+4,y+H-5); g.rotate(-Math.PI/2); g.font="700 11px Archivo, Arial, sans-serif"; const s=fitText(g,k.n,H-10); if(s)g.fillText(s,0,0); g.restore() }
+    if(TESN.has(k.n)&&w>20&&H>20){ g.fillStyle='#0B1112'; g.beginPath(); g.moveTo(x+w-10,y+4); g.lineTo(x+w-4,y+10); g.lineTo(x+w-10,y+16); g.lineTo(x+w-16,y+10); g.closePath(); g.fill() }
     if(k===hover||k===picked){ g.strokeStyle='#0B1112'; g.lineWidth=4; g.strokeRect(x+2,y+2,w-4,H-4); g.strokeStyle='#EEF1EC'; g.lineWidth=2; g.strokeRect(x-1,y-1,w+2,H+2) }
   });
   if(o.groups){ g.font="800 11px Archivo, Arial, sans-serif"; o.groups.forEach(q=>{ const s=q.n.toUpperCase(), tw=g.measureText(s).width; if(q.w<tw+16||q.h<26)return;
@@ -122,7 +179,7 @@ function showCard(){
   $('#ring').innerHTML=s+'</svg><div class="hx"><span>1988</span><span>'+T[lang].ring+'</span><span>2026</span></div>';
   const p=k.p[yi]; $('#cn').textContent=k.n; $('#cp').textContent=p==null?T[lang].none:p+' %  ·  '+(Y0+yi);
   let best=-1,worst=-1; k.p.forEach((v,j)=>{ if(v==null)return; if(best<0||v>k.p[best])best=j; if(worst<0||v<k.p[worst])worst=j});
-  $('#cd').innerHTML=k.basin+' · '+T[lang].cap+' '+hm(k.c)+' hm3<br>'+T[lang].now+' '+k.p[N-1]+' % ('+hm(k.v)+' hm3) · '+T[lang].best+' '+(Y0+best)+' ('+k.p[best]+' %) · '+T[lang].worst+' '+(Y0+worst)+' ('+k.p[worst]+' %)';
+  $('#cd').innerHTML=k.basin+' · '+T[lang].cap+' '+hm(k.c)+' hm3<br>'+T[lang].now+' '+k.p[N-1]+' % ('+hm(k.v)+' hm3) · '+T[lang].best+' '+(Y0+best)+' ('+k.p[best]+' %) · '+T[lang].worst+' '+(Y0+worst)+' ('+k.p[worst]+' %)'+(TESN.has(k.n)?'<br><a href="#esconde">'+T[lang].hides+': '+TESN.get(k.n).t.n[lang]+'</a>':'');
 }
 $('#cx').addEventListener('click',()=>{picked=null;hover=null;showCard()});
 
@@ -134,7 +191,7 @@ function setYear(i){ yi=Math.max(0,Math.min(N-1,i)); tChange=performance.now(); 
   [...bars.children].forEach((b,k)=>{b.classList.toggle('on',k===yi); b.classList.toggle('later',k>yi)});
   $('#when').textContent=(D.dates[yi]?fmtDate(D.dates[yi]):(Y0+yi)+' · '+T[lang].nodata)+(yi===N-1?' · '+T[lang].today+' · '+hm(D.stored)+' / '+hm(D.total)+' hm3':'');
   basins.forEach(o=>{const p=o.b.p[yi]; o.pct.textContent=p==null?'':p+' %'; o.cnt.textContent=o.bricks.filter(k=>k.p[yi]!=null).length+' '+T[lang].res});
-  if(still||D.nat[yi]==null)$('#nat').textContent=D.nat[yi]==null?'· %':num(D.nat[yi],1)+' %'; showCard(); }
+  if(still||D.nat[yi]==null)$('#nat').textContent=D.nat[yi]==null?'· %':num(D.nat[yi],1)+' %'; showCard(); renderTes(); }
 function setLang(l){ lang=l; document.documentElement.lang=l; $('#l-es').setAttribute('aria-pressed',l==='es'); $('#l-en').setAttribute('aria-pressed',l==='en');
   lines.forEach((o,j)=>{o.dry.textContent=T[l].h[j]; o.wet.textContent=T[l].h[j]}); h1.setAttribute('aria-label',T[l].h.join(' '));
   $('#lede').innerHTML=T[l].lede; $('#sl').textContent=T[l].strip; foot.innerHTML='<div>'+T[l].foot+'</div><nav><a href="creditos.html">'+T[l].credits+'</a><a href="https://ko-fi.com/lessane" rel="noopener">'+T[l].kofi+'</a><a href="https://github.com/lessane-land/agua" rel="noopener">'+T[l].code+'</a></nav>'; $('#cx').setAttribute('aria-label',T[l].close); $('#year').setAttribute('aria-label',T[l].year); try{localStorage.setItem('agua-lang',l)}catch(e){} ALL.sec.querySelector('h2').textContent=T[l].all; fitHead(); setYear(yi) }
@@ -149,7 +206,7 @@ function frame(t){
   const n=D.nat[yi]==null?natCur:D.nat[yi]; if(!still&&D.nat[yi]!=null){natCur+=(n-natCur)*0.12; if(Math.abs(n-natCur)<0.04)natCur=n; $('#nat').textContent=num(natCur,1)+' %'}
   lines.forEach((o,j)=>{ const tg=levelPx(o.fs,still?n:natCur); if(o.cur==null||still){o.cur=tg}else{o.vel+=(tg-o.cur)*0.08; o.vel*=0.8; o.cur+=o.vel}
     o.wet.style.setProperty('--y',o.cur.toFixed(1)+'px'); if(!still)o.wet.style.setProperty('--x',((t*0.025+j*40)%120).toFixed(1)+'px') });
-  basins.forEach(o=>{ if(o.vis)draw(o,t) });
+  basins.forEach(o=>{ if(o.vis)draw(o,t) }); drawTes(t);
   requestAnimationFrame(frame);
 }
 setLang(lang); layout();
