@@ -121,3 +121,6 @@ footer nav{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px}
 #ring{clear:both}
 .chips button.tw{border-style:dashed}
 .vtxt p.hon{color:var(--ink)}
+
+#tip{position:fixed;z-index:4;pointer-events:none;background:var(--dark);border:2px solid var(--ink);color:var(--ink);font-family:var(--mono);font-size:12px;font-weight:600;padding:5px 8px;white-space:nowrap}
+#tip[hidden]{display:none}

@@ -44,8 +44,8 @@ function mk(b,src,all){
   const o={b,sec,cv,g:cv.getContext('2d'),pct:sec.querySelector('.bm b'),cnt:sec.querySelector('.bm span'),vis:false,pats:null,
     all,bricks:src.map(r=>({n:r[0],c:r[1],p:r[2],v:r[3],basin:r[4]||b.n,i:idx++,tone:hash(r[0])%3,cur:null,vel:0,x:0,y:0,w:0}))};
   basins.push(o);
-  cv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch')return; hover=hit(o,e); cv.style.cursor=hover?'pointer':'default'; showCard()});
-  cv.addEventListener('pointerleave',()=>{hover=null; showCard()});
+  cv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch')return; hover=hit(o,e); cv.style.cursor=hover?'pointer':'default'; tip(e)});
+  cv.addEventListener('pointerleave',()=>{hover=null; tip()});
   cv.addEventListener('click',e=>{const k=hit(o,e); picked=(k&&!(picked&&picked.n===k.n))?k:null; showCard()});
   return o;
 }
@@ -62,8 +62,8 @@ main.appendChild(msec);
 const mcv=msec.querySelector('canvas');
 const MO={cv:mcv,g:mcv.getContext('2d'),sec:msec,rev:true,vis:true,W:0,h:0,pats:null,
   bricks:ALL.bricks.filter(k=>LL[k.n]).sort((a,b)=>b.c-a.c).map((k,i)=>({n:k.n,c:k.c,p:k.p,v:k.v,basin:k.basin,ll:LL[k.n],i,tone:k.tone,cur:null,vel:0,x:0,y:0,w:0,h:0}))};
-mcv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch')return; hover=hit(MO,e); mcv.style.cursor=hover?'pointer':'default'; showCard()});
-mcv.addEventListener('pointerleave',()=>{hover=null; showCard()});
+mcv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch')return; hover=hit(MO,e); mcv.style.cursor=hover?'pointer':'default'; tip(e)});
+mcv.addEventListener('pointerleave',()=>{hover=null; tip()});
 mcv.addEventListener('click',e=>{const k=hit(MO,e); picked=(k&&k!==picked)?k:null; showCard()});
 function sizeMap(){ const full=mcv.parentElement.clientWidth; if(!full)return; const W=Math.max(280,Math.min(full,(innerHeight-190)/RATIO)), H=Math.round(W*RATIO);
   MO.W=W; MO.h=H; mcv.style.width=W+'px'; mcv.style.height=H+'px'; mcv.width=Math.round(W*dpr); mcv.height=Math.round(H*dpr); MO.g.setTransform(dpr,0,0,dpr,0,0); MO.pats=ROCKS.map(c=>MO.g.createPattern(c,'repeat'));
@@ -110,8 +110,8 @@ vsec.innerHTML='<div class="bh"><h2></h2><div class="bm"><b>'+VAS.length+'</b><s
 if(VAS.length)main.appendChild(vsec);
 const vcv=vsec.querySelector('canvas');
 const VO={cv:vcv,g:vcv.getContext('2d'),sec:vsec,bricks:[],vis:true,W:0,h:0,pats:null};
-vcv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch')return; hover=hit(VO,e); vcv.style.cursor=hover?'pointer':'default'; showCard()});
-vcv.addEventListener('pointerleave',()=>{hover=null; showCard()});
+vcv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch')return; hover=hit(VO,e); vcv.style.cursor=hover?'pointer':'default'; tip(e)});
+vcv.addEventListener('pointerleave',()=>{hover=null; tip()});
 vcv.addEventListener('click',e=>{const k=hit(VO,e); picked=(k&&!(picked&&picked.n===k.n))?k:null; showCard()});
 function vPct(v,i){ const ks=v.r.map(n=>ALL.bricks.find(k=>k.n===n)).filter(Boolean); let c=0,w=0;
   ks.forEach(k=>{ if(i===N-1){c+=k.c;w+=k.v} else if(k.p[i]!=null){c+=k.c;w+=k.c*k.p[i]/100} }); return c?100*w/c:null }
@@ -267,7 +267,7 @@ function draw(o,t){
 /* card with tree rings */
 const lerp=(a,b,t)=>'#'+[1,3,5].map(i=>{const x=parseInt(a.substr(i,2),16),y=parseInt(b.substr(i,2),16);return Math.round(x+(y-x)*t).toString(16).padStart(2,'0')}).join('');
 function showCard(){
-  const k=hover||picked, card=$('#card'); if(!k){card.hidden=true;return} card.hidden=false;
+  const k=picked, card=$('#card'); if(!k){card.hidden=true;return} card.hidden=false;
   let s='<svg viewBox="0 0 312 64" width="100%" role="img" aria-label="'+T[lang].ring+'">';
   k.p.forEach((p,j)=>{ const x=j*8; if(p==null){s+='<rect x="'+(x+.5)+'" y=".5" width="6" height="55" fill="none" stroke="#34403F" stroke-dasharray="2 2"/>'}
     else{const h=56*p/100; s+='<rect x="'+x+'" y="0" width="7" height="56" fill="#CDB98F"/><rect x="'+x+'" y="'+(56-h).toFixed(1)+'" width="7" height="'+h.toFixed(1)+'" fill="#3F93A8"/>'}
@@ -278,6 +278,8 @@ function showCard(){
   $('#cd').innerHTML=k.basin+' · '+T[lang].cap+' '+hm(k.c)+' hm3<br>'+T[lang].now+' '+k.p[N-1]+' % ('+hm(k.v)+' hm3) · '+T[lang].best+' '+(Y0+best)+' ('+k.p[best]+' %) · '+T[lang].worst+' '+(Y0+worst)+' ('+k.p[worst]+' %)'+(TESN.has(k.n)?'<br><a href="#esconde">'+T[lang].hides+': '+TESN.get(k.n).t.n[lang]+'</a>':'');
   $('#loc').innerHTML=locSvg(k); if(LL[k.n])$('#cd').innerHTML+=' · <a href="#mapa">'+T[lang].onmap+'</a>';
 }
+function tip(e){ const el=$('#tip'); if(!e||!hover){el.hidden=true;return} const p=hover.p[yi]; el.textContent=hover.n+' · '+(p==null?T[lang].none:p+' %'); el.hidden=false;
+  el.style.left=Math.max(8,Math.min(e.clientX+14,innerWidth-el.offsetWidth-8))+'px'; el.style.top=Math.min(e.clientY+18,innerHeight-el.offsetHeight-8)+'px' }
 $('#cx').addEventListener('click',()=>{picked=null;hover=null;showCard()});
 
 /* year strip */
