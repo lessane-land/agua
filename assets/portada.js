@@ -53,6 +53,8 @@ const S = {
     ],
     shortSong: ' Eso sí, canta una corta.',
     usual: (n, p) => 'Nivel habitual de ' + n + ' esta semana: ' + p + ' % (mediana desde 1988).',
+    wallHead: 'El muro, por cuencas', wallHint: 'toca una cuenca para abrirla', wallAria: 'Las 16 cuencas: el tamaño es su capacidad, el azul es el agua que tienen',
+    findLab: '¿Y EL TUYO? ESCRIBE TU MUNICIPIO', findPh: 'Teruel, Móstoles, Ourense', findGo: 'Buscar',
     byBasin: 'Cuencas, de más llena a más vacía', legend: 'Cada cuadrado es un embalse: tamaño, su capacidad; azul, el agua que tiene.',
     share: 'Compartir mi vaso', copied: 'Enlace copiado',
     shareText: (n, p) => 'El agua de ' + n + ' está al ' + p + ' %.'
@@ -102,6 +104,8 @@ const S = {
     ],
     shortSong: ' Make it a short song, though.',
     usual: (n, p) => 'Usual level of ' + n + ' this week: ' + p + ' % (median since 1988).',
+    wallHead: 'The wall, by basin', wallHint: 'tap a basin to open it', wallAria: 'The 16 basins: size is capacity, blue is the water they hold',
+    findLab: 'AND YOURS? TYPE YOUR TOWN', findPh: 'Teruel, Móstoles, Ourense', findGo: 'Search',
     byBasin: 'Basins, fullest to emptiest', legend: 'Each square is a reservoir: size is its capacity, blue is the water it holds.',
     share: 'Share my glass', copied: 'Link copied',
     shareText: (n, p) => 'The water of ' + n + ' is at ' + p + ' %.'
@@ -122,7 +126,7 @@ function brick(p, w, h) {
 
 const VIEWS = ['home', 'muro', 'mapa', 'tu-vaso', 'esconde', 'premios'];
 let A, L, view = 'home', NOTES = { fuera_de_concurso: [], contexto: [] };
-let home, prem, nav, plus, side;
+let home, prem, nav, plus, side, rzT, wallBuilt = 0;
 
 addEventListener('agua:ready', init, { once: true });
 if (window.AGUA) init();
@@ -140,7 +144,15 @@ function init() {
   A.ALL.sec.querySelector('.bh').after($('#lede'));
 
   home = document.createElement('section'); home.className = 'basin home'; home.id = 'portada'; home.dataset.view = 'home';
+  home.innerHTML = '<div class="hl"><div class="hc1"></div><form class="find" role="search" autocomplete="off"><label for="find"></label><div><input id="find" type="search"><button type="submit"></button></div></form><div class="hc2"></div></div>' +
+    '<div class="hr"><div class="bh"><h2></h2><div class="bm"><span></span></div></div><div class="cw"></div></div>';
+  home.querySelector('.hl').prepend($('.hero'));
   main.prepend(home);
+  const f = home.querySelector('.find'), fi = $('#find');
+  fi.addEventListener('focus', () => A.loadTowns());
+  f.addEventListener('submit', e => { e.preventDefault(); const q = fi.value.trim(); if (q) findTown(q); });
+  $('.top').insertBefore($('#nav'), $('.lang'));
+  addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => drawWall(true), 120); });
   prem = document.createElement('section'); prem.className = 'basin prem'; prem.id = 'premios'; prem.dataset.view = 'premios';
   main.querySelector('footer').before(prem);
   nav = $('#nav');
@@ -160,6 +172,7 @@ function route() {
   const h = decodeURIComponent(location.hash.replace(/^#\/?/, '')), parts = h.split('/');
   let v = VIEWS.includes(parts[0]) ? parts[0] : 'home', pick = null;
   if (parts[0] === 'embalse' && parts[1]) { v = 'muro'; pick = parts.slice(1).join('/'); }
+  let basin = null; if (parts[0] === 'cuenca' && parts[1]) { v = 'muro'; basin = parts.slice(1).join('/'); }
   if (parts[0] === 'tu-vaso' && parts[1]) { const c = A.VAS.find(x => x.id === parts[1]); if (c) A.pickCity(c); }
   const changed = v !== view; view = v;
   document.body.dataset.view = v;
@@ -170,6 +183,9 @@ function route() {
   A.fitHead(); A.layout();
   if (pick) A.pick(pick); else if (changed) A.pick(null);
   if (changed) scrollTo(0, 0);
+  if (basin) { const sec = [...$('#main').children].find(el => el.dataset.view === 'muro' && el.querySelector('h2') && el.querySelector('h2').textContent === basin);
+    if (sec) setTimeout(() => sec.scrollIntoView({ block: 'start' }), 60); }
+  if (v === 'home') drawWall(true);
 }
 
 function renderAll() {
@@ -184,6 +200,8 @@ function renderAll() {
 function monthName() { const d = A.D.dates[A.yi] || A.D.date; return L.months[+d.slice(5, 7) - 1]; }
 function renderHome(prizes) {
   const D = A.D, yi = A.yi, v = D.nat[yi]; let h = '';
+  home.querySelector('.find label').textContent = L.findLab; $('#find').placeholder = L.findPh; home.querySelector('.find button').textContent = L.findGo;
+  home.querySelector('.hr h2').textContent = L.wallHead; home.querySelector('.hr .bm span').textContent = L.wallHint;
   if (v != null) {
     const m = monthName(), all = D.nat.filter(x => x != null), r = all.filter(x => x > v).length + 1;
     h += '<p class="hv">' + band(L.verdict, v)(m) + '</p><p class="hs">' + L.rank(r, all.length, m);
@@ -191,13 +209,74 @@ function renderHome(prizes) {
     if (yi === D.nat.length - 1) h += ' ' + L.pools(A.num(D.stored * 400 / 1e6, 1));
     h += '</p>';
   }
+  home.querySelector('.hc1').innerHTML = h; h = '';
   const count = { muro: A.ALL.bricks.length, esconde: A.TESN.size };
   h += '<div class="doors">' + ['muro', 'tu-vaso', 'mapa', 'esconde'].map(d =>
     '<a class="door" href="#/' + d + '"><b>' + L.nav[d] + '</b><span>' + L.doors[d](count[d]) + '</span></a>').join('') + '</div>';
   const t = prizes.find(a => a.id === 'estiron') || prizes[0];
   if (t) h += '<a class="teaser" href="#/premios"><span class="tk">' + L.prizeOne + '</span><span class="tb">' + brick(t.p, 46, 60) +
     '<span><b>' + L.aw[t.id][0] + ': ' + esc(t.k.n) + '</b><i>' + t.line + '</i><u>' + L.prizeAll + '</u></span></span></a>';
-  home.innerHTML = h;
+  home.querySelector('.hc2').innerHTML = h;
+  drawWall(false);
+}
+
+/* ---------- the wall by basin, on the home page ---------- */
+/* Sixteen bricks instead of 375: each basin is one block, area = capacity, water = its level.
+   It is SVG, not canvas, so every basin is a real link that a keyboard and a screen reader can use.
+   The water rises with a CSS transform, so changing the year animates without redrawing. */
+function squarify(items, x, y, w, h) {
+  const out = [], tot = items.reduce((a, b) => a + b.v, 0), f = w * h / tot, ar = items.map(i => i.v * f);
+  const worst = (mx, mn, s, side) => Math.max(side * side * mx / (s * s), s * s / (side * side * mn));
+  let i = 0;
+  while (i < items.length) {
+    const side = Math.min(w, h); let s = ar[i], mx = s, mn = s, j = i + 1;
+    while (j < items.length) { const a = ar[j]; if (worst(Math.max(mx, a), Math.min(mn, a), s + a, side) <= worst(mx, mn, s, side)) { s += a; mx = Math.max(mx, a); mn = Math.min(mn, a); j++; } else break; }
+    const th = s / side; let off = 0;
+    for (let q = i; q < j; q++) { const ln = ar[q] / th; out.push(Object.assign({}, items[q], w >= h ? { x, y: y + off, w: th, h: ln } : { x: x + off, y, w: ln, h: th })); off += ln; }
+    if (w >= h) { x += th; w -= th; } else { y += th; h -= th; }
+    i = j;
+  }
+  return out;
+}
+function drawWall(rebuild) {
+  const box = home && home.querySelector('.cw'); if (!box || view !== 'home') return;
+  const W = Math.floor(box.clientWidth); if (!W) return;
+  const yi = A.yi;
+  if (rebuild || !box.firstChild || wallBuilt !== W) {
+    wallBuilt = W;
+    const wide = innerWidth >= 1000, H = Math.round(wide ? Math.max(360, Math.min(innerHeight - 250, W * 0.75)) : W * 0.8);
+    const items = A.D.basins.map(b => ({ n: b.n, v: b.r.reduce((a, r) => a + r[1], 0), b })).sort((a, b) => b.v - a.v);
+    let g = '<defs><pattern id="strata" width="8" height="9" patternUnits="userSpaceOnUse"><rect width="8" height="9" fill="#CDB98F"/><rect y="8" width="8" height="1" fill="#B19C72"/></pattern></defs>';
+    squarify(items, 0, 0, W, H).forEach(q => {
+      const x = q.x + 1, y = q.y + 1, w = Math.max(1, q.w - 2), h = Math.max(1, q.h - 2), big = w >= 70 && h >= 44, mid = w >= 34 && h >= 20;
+      g += '<a href="#/cuenca/' + encodeURIComponent(q.n) + '" class="bw" data-n="' + esc(q.n) + '"><title></title><svg x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '">' +
+        '<rect width="100%" height="100%" fill="url(#strata)"/><rect class="wt" width="100%" height="100%" fill="#3F93A8"/>' +
+        (big ? '<text x="8" y="' + (h - 24) + '" class="t1">' + esc(q.n) + '</text><text x="8" y="' + (h - 9) + '" class="t2"></text>'
+          : mid ? '<text x="5" y="' + (h - 6) + '" class="t3">' + esc(q.n) + '</text>' : '') + '</svg></a>';
+    });
+    box.innerHTML = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img"></svg>';
+    box.firstChild.innerHTML = g;
+  }
+  box.firstChild.setAttribute('aria-label', L.wallAria);
+  [...box.querySelectorAll('.bw')].forEach(a => {
+    const b = A.D.basins.find(x => x.n === a.dataset.n), p = b.p[yi];
+    a.querySelector('.wt').style.transform = 'scaleY(' + ((p || 0) / 100) + ')';
+    const t2 = a.querySelector('.t2'); if (t2) t2.textContent = p == null ? '' : p + ' %';
+    a.querySelector('title').textContent = b.n + ' · ' + (p == null ? '' : p + ' %');
+  });
+}
+
+/* the home search hands the name to Tu vaso, which already knows every municipality */
+function findTown(q) {
+  location.hash = '#/tu-vaso';
+  let tries = 0;
+  const go = () => {
+    if (!A.towns && tries++ < 30) { A.loadTowns(); return setTimeout(go, 100); }
+    const c = $('#city'); c.value = q; c.dispatchEvent(new Event('input'));
+    c.form.requestSubmit ? c.form.requestSubmit() : c.form.dispatchEvent(new Event('submit', { cancelable: true }));
+    $('#find').value = '';
+  };
+  setTimeout(go, 30);
 }
 
 /* ---------- beside the map ---------- */
@@ -247,7 +326,7 @@ function renderPrizes(prizes) {
 function renderCard() {
   if (!plus) return; const k = A.picked, yi = A.yi;
   /* a card that is open has an address, so it can be shared */
-  if (view === 'muro') history.replaceState(null, '', k ? '#/embalse/' + encodeURIComponent(k.n) : '#/muro');
+  if (view === 'muro' && (k || location.hash.startsWith('#/embalse/'))) history.replaceState(null, '', k ? '#/embalse/' + encodeURIComponent(k.n) : '#/muro');
   if (!k || k.p[yi] == null) { plus.innerHTML = ''; return; }
   const p = k.p[yi], q = yi > 0 ? k.p[yi - 1] : null;
   let h = '<p class="cm"><span class="mood">' + band(L.mood, p) + '</span>';

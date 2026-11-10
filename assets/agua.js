@@ -26,7 +26,7 @@ const hash=s=>{let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;r
 
 /* headline: two fitted lines, filled like vessels at the national level */
 const h1=$('#h1'); const lines=[0,1].map(()=>{const s=document.createElement('span'); s.className='big'; s.innerHTML='<span class="dry"></span><span class="wet" aria-hidden="true"></span>'; h1.appendChild(s); return {el:s,dry:s.firstChild,wet:s.lastChild,fs:100,cur:null,vel:0}});
-function fitHead(){ const W=h1.clientWidth; if(!W)return; let fs=Math.min(innerHeight*0.14,170);
+function fitHead(){ const W=h1.clientWidth; if(!W)return; let fs=Math.min(innerHeight*0.17,180);
   lines.forEach(o=>{o.el.style.fontSize='100px'; fs=Math.min(fs,Math.floor(100*W/(o.dry.getBoundingClientRect().width||1)))});
   lines.forEach(o=>{o.fs=fs; o.el.style.fontSize=fs+'px'; o.cur=null}) }
 const levelPx=(fs,p)=>fs*(0.16+0.098+0.686*(1-p/100));
@@ -323,7 +323,7 @@ function frame(t){
   requestAnimationFrame(frame);
 }
 window.AGUA={D,T,ALL,VAS,TESN,vPct,layout,fitHead,pickCity,num,get lang(){return lang},get yi(){return yi},get picked(){return picked},get vsel(){return vsel},
-  pick(n){picked=n?ALL.bricks.find(k=>k.n===n)||null:null; hover=null; showCard()}, hidden(n){const o=TESN.get(n); return o?{t:o.t,v:verdict(o)}:null}, refreshGlass(){renderVas()}};
+  pick(n){picked=n?ALL.bricks.find(k=>k.n===n)||null:null; hover=null; showCard()}, hidden(n){const o=TESN.get(n); return o?{t:o.t,v:verdict(o)}:null}, refreshGlass(){renderVas()}, loadTowns, get towns(){return TOWNS}};
 setLang(lang); layout(); dispatchEvent(new CustomEvent('agua:ready'));
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{fitHead(); layout()});
 requestAnimationFrame(frame);
