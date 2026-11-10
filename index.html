@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agua · España se llena</title>
+<meta name="description" content="Los embalses de España como un muro de agua: cada ladrillo es un embalse, a su nivel de esta semana, y de esta semana en otros años desde 1988. Spain's reservoirs as a wall of water.">
+<meta property="og:title" content="Agua · España se llena">
+<meta property="og:description" content="Los embalses de España como un muro de agua. Cada ladrillo, un embalse. Desde 1988.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://agua.lessane.es/">
+<meta name="theme-color" content="#0F1415">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/agua.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><a href="./">AGUA</a></div>
+  <div class="lang"><button id="l-es" aria-pressed="true">ES</button><button id="l-en" aria-pressed="false">EN</button></div>
+</header>
+<div class="hero">
+  <h1 id="h1"></h1>
+  <div class="sub"><div class="nat" id="nat">56,0 %</div><div class="when" id="when"></div></div>
+  <p class="lede" id="lede"></p>
+</div>
+<main id="main"></main>
+<div id="card" hidden><div class="cn" id="cn"></div><div class="cp" id="cp"></div><div id="ring"></div><div class="cd" id="cd"></div><button id="cx" aria-label="Cerrar"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="2"/></svg></button></div>
+<div class="dock">
+  <button id="play" aria-label="Reproducir"><svg id="pi" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 1.5v13l11-6.5z" fill="currentColor"/></svg></button>
+  <div class="track">
+    <div class="tl"><span id="sl"></span><strong id="yl">2026</strong></div>
+    <div class="bars" id="bars" aria-hidden="true"></div>
+    <input id="year" type="range" min="1988" max="2026" step="1" value="2026" aria-label="Año">
+  </div>
+</div>
+<noscript><p class="msg">Esta página necesita JavaScript para dibujar el muro. / This page needs JavaScript to draw the wall.</p></noscript>
+<script src="assets/agua.js"></script>
+</body>
+</html>

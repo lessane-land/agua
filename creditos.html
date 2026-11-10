@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agua · Créditos y fuentes</title>
+<meta name="description" content="Fuentes, licencias y método de Agua. Sources, licences and method.">
+<meta name="theme-color" content="#0F1415">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/agua.css">
+</head>
+<body>
+<header class="top"><div class="brand"><a href="./">AGUA</a></div></header>
+<main class="doc" style="display:block">
+<h1>Créditos</h1>
+<p>Credits and sources. Español primero, English below.</p>
+
+<h2>Datos</h2>
+<p><b>Origen de los datos: Ministerio para la Transición Ecológica y el Reto Demográfico (MITECO), Boletín Hidrológico semanal.</b> Fichero histórico BD-Embalses, con los embalses peninsulares de más de 5 hm3 desde 1988. <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html" rel="noopener">Página del boletín</a>. Reutilización según el <a href="https://www.miteco.gob.es/es/atencion-al-ciudadano/aviso-legal.html" rel="noopener">aviso legal del MITECO</a>, citando la fuente.</p>
+<ul>
+<li>Los datos son provisionales y no están validados. Esta web no es una fuente oficial.</li>
+<li>No incluye las islas, Ceuta ni Melilla, ni la mayoría de embalses de menos de 5 hm3.</li>
+<li>La fecha de los datos aparece siempre junto a la cifra nacional. El fichero del ministerio suele ir unos días por detrás del boletín.</li>
+</ul>
+
+<h2>Método</h2>
+<ul>
+<li>Un programa en Python (solo biblioteca estándar, más mdbtools para leer el fichero Access) descarga el histórico cada semana desde GitHub Actions y genera un fichero pequeño. Tu navegador nunca llama al ministerio.</li>
+<li>El área de cada ladrillo es la capacidad actual del embalse, a la misma escala en toda España. El agua es el porcentaje embalsado.</li>
+<li>Para cada año se usa el boletín más cercano a la fecha del último, con un margen de 4 días. Si no hay ninguno, ese año queda sin dato.</li>
+<li>El porcentaje de cada año usa la capacidad que tenía el embalse ese año. Si un dato supera el 100 %, se dibuja al 100 %.</li>
+<li>Un hueco con borde discontinuo es un embalse que no figuraba en el boletín ese año.</li>
+</ul>
+
+<h2>Tipografías</h2>
+<p><b>Archivo</b>, de Omnibus-Type, e <b>IBM Plex Mono</b>, de IBM. Ambas con licencia SIL Open Font License 1.1, servidas desde esta misma web.</p>
+
+<h2>Privacidad</h2>
+<p>Sin anuncios, sin cookies y sin seguimiento. La web solo guarda en tu navegador el idioma elegido. El alojamiento es GitHub Pages, que registra las visitas como cualquier servidor.</p>
+
+<h2>Quién</h2>
+<p>Hecho por Vane en Madrid, con Claude. <a href="https://github.com/lessane-land/agua" rel="noopener">Código</a>. Si te ha gustado, <a href="https://ko-fi.com/lessane" rel="noopener">invítame a un café</a>.</p>
+
+<h1 lang="en" style="margin-top:72px">Credits</h1>
+
+<div lang="en">
+<h2>Data</h2>
+<p><b>Data source: Spain's Ministry for the Ecological Transition (MITECO), weekly Boletín Hidrológico.</b> BD-Embalses history file, with mainland reservoirs over 5 hm3 since 1988. <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html" rel="noopener">Bulletin page</a>. Reused under <a href="https://www.miteco.gob.es/es/atencion-al-ciudadano/aviso-legal.html" rel="noopener">MITECO's legal notice</a>, citing the source.</p>
+<ul>
+<li>The data is provisional and unvalidated. This site is not an official source.</li>
+<li>The islands, Ceuta and Melilla are not included, nor are most reservoirs under 5 hm3.</li>
+<li>The data date is always shown next to the national figure. The ministry's file usually runs a few days behind the bulletin.</li>
+</ul>
+
+<h2>Method</h2>
+<ul>
+<li>A Python script (standard library only, plus mdbtools to read the Access file) downloads the history every week from GitHub Actions and builds one small file. Your browser never calls the ministry.</li>
+<li>Each brick's area is the reservoir's current capacity, at one scale for all of Spain. The water is the percentage stored.</li>
+<li>For each year the site uses the bulletin closest to the latest one's date, within 4 days. If there is none, that year has no data.</li>
+<li>Each year's percentage uses the capacity the reservoir had that year. A value over 100% is drawn at 100%.</li>
+<li>A gap with a dashed border is a reservoir that was not in the bulletin that year.</li>
+</ul>
+
+<h2>Typefaces</h2>
+<p><b>Archivo</b> by Omnibus-Type and <b>IBM Plex Mono</b> by IBM. Both under the SIL Open Font License 1.1, served from this site.</p>
+
+<h2>Privacy</h2>
+<p>No ads, no cookies, no tracking. The site only stores your chosen language in your browser. Hosting is GitHub Pages, which logs visits like any server.</p>
+
+<h2>Who</h2>
+<p>Made by Vane in Madrid, with Claude. <a href="https://github.com/lessane-land/agua" rel="noopener">Code</a>. If you liked it, <a href="https://ko-fi.com/lessane" rel="noopener">buy me a coffee</a>.</p>
+</div>
+</main>
+</body>
+</html>
