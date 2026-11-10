@@ -1,0 +1,20 @@
+{
+  "fuera_de_concurso": [
+    {
+      "embalse": "Escalona",
+      "es": "presa de defensa frente a avenidas, casi vacía a propósito",
+      "en": "a flood-defence dam, kept almost empty on purpose",
+      "t": "iAgua Data, presa de Escalona (uso: defensa frente a avenidas)",
+      "u": "https://www.iagua.es/data/infraestructuras/presas/escalona-jucar"
+    }
+  ],
+  "contexto": [
+    {
+      "embalse": "Yesa",
+      "es": "Que no cunda el pánico todavía: Yesa se usa sobre todo para regar las Bardenas y suele llegar al otoño muy bajo, al acabar la campaña de riego.",
+      "en": "No need to panic yet: Yesa mostly irrigates the Bardenas and usually reaches autumn very low, once the irrigation season ends.",
+      "t": "Cuadernos de Investigación Geográfica, Universidad de La Rioja: régimen del embalse de Yesa",
+      "u": "https://publicaciones.unirioja.es/ojs/index.php/cig/article/download/1067/988"
+    }
+  ]
+}

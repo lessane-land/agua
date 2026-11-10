@@ -26,7 +26,7 @@ const hash=s=>{let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;r
 
 /* headline: two fitted lines, filled like vessels at the national level */
 const h1=$('#h1'); const lines=[0,1].map(()=>{const s=document.createElement('span'); s.className='big'; s.innerHTML='<span class="dry"></span><span class="wet" aria-hidden="true"></span>'; h1.appendChild(s); return {el:s,dry:s.firstChild,wet:s.lastChild,fs:100,cur:null,vel:0}});
-function fitHead(){ const W=h1.clientWidth; if(!W)return; let fs=Math.min(innerHeight*0.24,260);
+function fitHead(){ const W=h1.clientWidth; if(!W)return; let fs=Math.min(innerHeight*0.14,170);
   lines.forEach(o=>{o.el.style.fontSize='100px'; fs=Math.min(fs,Math.floor(100*W/(o.dry.getBoundingClientRect().width||1)))});
   lines.forEach(o=>{o.fs=fs; o.el.style.fontSize=fs+'px'; o.cur=null}) }
 const levelPx=(fs,p)=>fs*(0.16+0.098+0.686*(1-p/100));
@@ -107,9 +107,9 @@ function renderTown(v){ const L=T[lang], p=v.r.length?vPct(v,yi):null, q=v.r.len
   else { h+='<div class="vd v-part">'+L.vnear1+' '+v.town[0]+', '+L.vnear2+' '+(p==null?'·':num(p,0))+' %</div>';
     if(p!=null&&q!=null){ const d=Math.round(p)-Math.round(q); h+='<p class="why '+(d<0?'down':'up')+'">'+(d===0?L.vsame:Math.abs(d)+' '+(d>0?L.vup:L.vdown))+'.</p>' }
     h+='<p class="hon">'+L.vhon1+' '+v.town[0]+': '+L.vhon2+'</p>';
-    h+='<p><b>'+L.vnearl+':</b> '+[...VO.bricks].sort((a,b)=>v.km[a.n]-v.km[b.n]).map(k=>k.n+' ('+Math.round(v.km[k.n])+' '+L.km+', '+(k.p[yi]==null?'·':k.p[yi]+' %')+')').join(', ')+'. <a href="#mapa">'+L.onmap+'</a></p>';
+    h+='<p><b>'+L.vnearl+':</b> '+[...VO.bricks].sort((a,b)=>v.km[a.n]-v.km[b.n]).map(k=>k.n+' ('+Math.round(v.km[k.n])+' '+L.km+', '+(k.p[yi]==null?'·':k.p[yi]+' %')+')').join(', ')+'. <a href="#/mapa">'+L.onmap+'</a></p>';
     if(yi!==N-1)h+='<p>'+L.vapprox+'</p>' }
-  vsec.querySelector('.vtxt').innerHTML=h }
+  vsec.querySelector('.vtxt').innerHTML=h; dispatchEvent(new CustomEvent('agua:vaso')) }
 
 /* ---------- layer 3: your glass ---------- */
 const VAS=(D.v||[]); let vsel=null;
@@ -153,7 +153,7 @@ function renderVas(){ if(!VAS.length)return; const L=T[lang];
   if(v.also.length)h+='<p>'+L.valso+': '+v.also.join(', ')+'.</p>';
   if(yi!==N-1)h+='<p>'+L.vapprox+'</p>';
   h+='<p class="srcs">'+L.src+': '+v.src.map(x=>'<a href="'+x.u+'" rel="noopener">'+x.t+'</a>').join(', ')+'</p>';
-  vsec.querySelector('.vtxt').innerHTML=h }
+  vsec.querySelector('.vtxt').innerHTML=h; dispatchEvent(new CustomEvent('agua:vaso')) }
 $('#city').addEventListener('input',e=>chips(e.target.value));
 vsec.querySelector('form').addEventListener('submit',e=>{ e.preventDefault(); const m=chips($('#city').value); if($('#city').value&&m.length){ m[0][1]?pickCity(m[0][1]):pickTown(m[0][2]) } });
 if(vsel)vBricks(vsel,true);
@@ -230,7 +230,7 @@ function squarify(ks,areas,R){
 }
 function layout(){
   dpr=Math.min(2,devicePixelRatio||1);
-  const W=basins[0].cv.parentElement.clientWidth-2*parseFloat(getComputedStyle(basins[0].sec).paddingLeft); if(!(W>0))return;
+  const tp=$('.top'), W=tp.clientWidth-2*parseFloat(getComputedStyle(tp).paddingLeft); if(!(W>0))return;
   const K=Math.max(28,Math.min(64,W/19));
   basins.forEach(o=>{ let bw=W, bh;
     if(o.all){ bh=Math.round(Math.max(320,W<620?Math.min(innerHeight-230,W*1.5):Math.min(innerHeight-250,W*0.6)));
@@ -280,7 +280,7 @@ function draw(o,t){
 /* card with tree rings */
 const lerp=(a,b,t)=>'#'+[1,3,5].map(i=>{const x=parseInt(a.substr(i,2),16),y=parseInt(b.substr(i,2),16);return Math.round(x+(y-x)*t).toString(16).padStart(2,'0')}).join('');
 function showCard(){
-  const k=picked, card=$('#card'); if(!k){card.hidden=true;return} card.hidden=false;
+  const k=picked, card=$('#card'); if(!k){card.hidden=true;dispatchEvent(new CustomEvent('agua:card'));return} card.hidden=false;
   let s='<svg viewBox="0 0 312 64" width="100%" role="img" aria-label="'+T[lang].ring+'">';
   k.p.forEach((p,j)=>{ const x=j*8; if(p==null){s+='<rect x="'+(x+.5)+'" y=".5" width="6" height="55" fill="none" stroke="#34403F" stroke-dasharray="2 2"/>'}
     else{const h=56*p/100; s+='<rect x="'+x+'" y="0" width="7" height="56" fill="#CDB98F"/><rect x="'+x+'" y="'+(56-h).toFixed(1)+'" width="7" height="'+h.toFixed(1)+'" fill="#3F93A8"/>'}
@@ -288,8 +288,9 @@ function showCard(){
   $('#ring').innerHTML=s+'</svg><div class="hx"><span>1988</span><span>'+T[lang].ring+'</span><span>2026</span></div>';
   const p=k.p[yi]; $('#cn').textContent=k.n; $('#cp').textContent=p==null?T[lang].none:p+' %  ·  '+(Y0+yi);
   let best=-1,worst=-1; k.p.forEach((v,j)=>{ if(v==null)return; if(best<0||v>k.p[best])best=j; if(worst<0||v<k.p[worst])worst=j});
-  $('#cd').innerHTML=k.basin+provTxt(k)+' · '+T[lang].cap+' '+hm(k.c)+' hm3<br>'+T[lang].now+' '+k.p[N-1]+' % ('+hm(k.v)+' hm3) · '+T[lang].best+' '+(Y0+best)+' ('+k.p[best]+' %) · '+T[lang].worst+' '+(Y0+worst)+' ('+k.p[worst]+' %)'+(TESN.has(k.n)?'<br><a href="#esconde">'+T[lang].hides+': '+TESN.get(k.n).t.n[lang]+'</a>':'');
-  $('#loc').innerHTML=locSvg(k); if(LL[k.n])$('#cd').innerHTML+=' · <a href="#mapa">'+T[lang].onmap+'</a>';
+  $('#cd').innerHTML=k.basin+provTxt(k)+' · '+T[lang].cap+' '+hm(k.c)+' hm3<br>'+T[lang].now+' '+k.p[N-1]+' % ('+hm(k.v)+' hm3) · '+T[lang].best+' '+(Y0+best)+' ('+k.p[best]+' %) · '+T[lang].worst+' '+(Y0+worst)+' ('+k.p[worst]+' %)';
+  $('#loc').innerHTML=locSvg(k); if(LL[k.n])$('#cd').innerHTML+=' · <a href="#/mapa">'+T[lang].onmap+'</a>';
+  dispatchEvent(new CustomEvent('agua:card'));
 }
 function tip(e){ const el=$('#tip'); if(!e||!hover){el.hidden=true;return} const p=hover.p[yi]; el.textContent=hover.n+' · '+(p==null?T[lang].none:p+' %'); el.hidden=false;
   el.style.left=Math.max(8,Math.min(e.clientX+14,innerWidth-el.offsetWidth-8))+'px'; el.style.top=Math.min(e.clientY+18,innerHeight-el.offsetHeight-8)+'px' }
@@ -303,7 +304,7 @@ function setYear(i){ yi=Math.max(0,Math.min(N-1,i)); tChange=performance.now(); 
   [...bars.children].forEach((b,k)=>{b.classList.toggle('on',k===yi); b.classList.toggle('later',k>yi)});
   $('#when').textContent=(D.dates[yi]?fmtDate(D.dates[yi]):(Y0+yi)+' · '+T[lang].nodata)+(yi===N-1?' · '+T[lang].today+' · '+hm(D.stored)+' / '+hm(D.total)+' hm3':'');
   basins.forEach(o=>{const p=o.b.p[yi]; o.pct.textContent=p==null?'':p+' %'; o.cnt.textContent=o.bricks.filter(k=>k.p[yi]!=null).length+' '+T[lang].res});
-  if(still||D.nat[yi]==null)$('#nat').textContent=D.nat[yi]==null?'· %':num(D.nat[yi],1)+' %'; showCard(); renderTes(); renderVas(); renderMap(); }
+  if(still||D.nat[yi]==null)$('#nat').textContent=D.nat[yi]==null?'· %':num(D.nat[yi],1)+' %'; showCard(); renderTes(); renderVas(); renderMap();  dispatchEvent(new CustomEvent('agua:year')) }
 function setLang(l){ lang=l; document.documentElement.lang=l; $('#l-es').setAttribute('aria-pressed',l==='es'); $('#l-en').setAttribute('aria-pressed',l==='en');
   lines.forEach((o,j)=>{o.dry.textContent=T[l].h[j]; o.wet.textContent=T[l].h[j]}); h1.setAttribute('aria-label',T[l].h.join(' '));
   $('#lede').innerHTML=T[l].lede; $('#sl').textContent=T[l].strip; foot.innerHTML='<div>'+T[l].foot+'</div><nav><a href="creditos.html">'+T[l].credits+'</a><a href="https://ko-fi.com/lessane" rel="noopener">'+T[l].kofi+'</a><a href="https://github.com/lessane-land/agua" rel="noopener">'+T[l].code+'</a></nav>'; $('#cx').setAttribute('aria-label',T[l].close); $('#year').setAttribute('aria-label',T[l].year); try{localStorage.setItem('agua-lang',l)}catch(e){} ALL.sec.querySelector('h2').textContent=T[l].all; fitHead(); setYear(yi) }
@@ -318,10 +319,12 @@ function frame(t){
   const n=D.nat[yi]==null?natCur:D.nat[yi]; if(!still&&D.nat[yi]!=null){natCur+=(n-natCur)*0.12; if(Math.abs(n-natCur)<0.04)natCur=n; $('#nat').textContent=num(natCur,1)+' %'}
   lines.forEach((o,j)=>{ const tg=levelPx(o.fs,still?n:natCur); if(o.cur==null||still){o.cur=tg}else{o.vel+=(tg-o.cur)*0.08; o.vel*=0.8; o.cur+=o.vel}
     o.wet.style.setProperty('--y',o.cur.toFixed(1)+'px'); if(!still)o.wet.style.setProperty('--x',((t*0.025+j*40)%120).toFixed(1)+'px') });
-  basins.forEach(o=>{ if(o.vis)draw(o,t) }); drawTes(t); if(MO.W){ const r=mcv.getBoundingClientRect(); if(r.bottom>-50&&r.top<innerHeight+50)draw(MO,t) } if(VO.bricks.length&&VO.W){ const r=vcv.getBoundingClientRect(); if(r.bottom>-50&&r.top<innerHeight+50)draw(VO,t) }
+  basins.forEach(o=>{ if(o.vis)draw(o,t) }); drawTes(t); if(MO.W){ const r=mcv.getBoundingClientRect(); if(r.width&&r.bottom>-50&&r.top<innerHeight+50)draw(MO,t) } if(VO.bricks.length&&VO.W){ const r=vcv.getBoundingClientRect(); if(r.width&&r.bottom>-50&&r.top<innerHeight+50)draw(VO,t) }
   requestAnimationFrame(frame);
 }
-setLang(lang); layout();
+window.AGUA={D,T,ALL,VAS,TESN,vPct,layout,fitHead,pickCity,num,get lang(){return lang},get yi(){return yi},get picked(){return picked},get vsel(){return vsel},
+  pick(n){picked=n?ALL.bricks.find(k=>k.n===n)||null:null; hover=null; showCard()}, hidden(n){const o=TESN.get(n); return o?{t:o.t,v:verdict(o)}:null}, refreshGlass(){renderVas()}};
+setLang(lang); layout(); dispatchEvent(new CustomEvent('agua:ready'));
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{fitHead(); layout()});
 requestAnimationFrame(frame);
 }
